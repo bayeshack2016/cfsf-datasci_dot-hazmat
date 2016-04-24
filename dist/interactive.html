@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Bayes Hack - Dept of Transportation</title>
+  <link rel="stylesheet" href="css/styles.css">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css"> -->
+
+  <link rel="stylesheet" href="css/styles.vendor.css">
+  <!-- <link rel="stylesheet" href="vendor/jquery.dataTables.css"> -->
+
+  <script src="vendor/d3.js" charset="utf-8"></script>
+  <script src="vendor/topojson.js" charset="utf-8"></script>
+  <script src="vendor/queue.js"></script>
+  <script src="vendor/d3-legend.js"></script>
+  <script src="vendor/jquery.js"></script>
+  <script src="vendor/jquery.form.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="row">
+    <div id="map_container" class="twelve columns chart-container"> </div>
+  </div>
+
+  <div class="row">
+    <div class="four columns">
+      <p>
+        Department of Transportation Prompt
+      </p>
+      <p>
+        <a href="http://bayeshack.org/transportation.html">The prompt</a> for the Bayes hackathon
+      </p>
+    </div>
+
+
+    <!-- put the post action here! -->
+    <form id="controls" action="" method="post"
+          class="four columns" oninput="f1_result.value=parseInt(f1.value);f2_result.value=parseInt(f2.value);f3_result.value=parseInt(f3.value)">
+      <select class="hidden" name="data-year" id="data-year-dropdown">
+        <option value="predicted_incidents_2015" selected>predicted</option>
+        <option value="actual_incidents_2015">actual</option>
+      </select>
+
+      <label for="f1" id="labelf1">Var 1</label>
+      <input type="range" name="f1" id="inputf1" value="">
+      <output id="outputf1" name="f1_result"></output>
+
+      <label for="f2" id="labelf2">Var 2</label>
+      <input type="range" name="f2" id="inputf2" value="">
+      <output id="outputf2" name="f2_result"></output>
+
+      <label for="f3" id="labelf3">Var 3</label>
+      <input type="range" name="f3" id="inputf3" value="">
+      <output id="outputf3" name="f3_result"></output>
+      <br>
+      <button type="button" name="button" id="recalculate">ReCalculate</button>
+    </form>
+
+    <div id="" class="two columns chart-container">
+      <table class="u-full-width">
+        <thead class="hidden">
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>State:</td>
+            <td id="callout-state" class="callout"></td>
+          </tr>
+          <tr>
+            <td id="callout-label-value">Value:</td>
+            <td id="callout-value" class="callout"></td>
+          </tr>
+          <tr>
+            <td id="callout-label-employees_mining_loging">employees_mining_loging:</td>
+            <td id="callout-employees_mining_loging" class="callout"></td>
+          </tr>
+          <tr>
+            <td id="callout-label-num_of_producible_wells">num_of_producible_wells:</td>
+            <td id="callout-num_of_producible_wells" class="callout"></td>
+          </tr>
+          <tr>
+            <td id="callout-label-num_of_producible_completions">num_of_producible_completions:</td>
+            <td id="callout-num_of_producible_completions" class="callout"></td>
+          </tr>
+          <tr>
+            <td id="callout-label-num_producing_acres">num_producing_acres:</td>
+            <td id="callout-num_producing_acres" class="callout"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+  </div>
+
+  <div class="row">
+    <div class="eleven columns">
+
+    </div>
+  </div>
+</div>
+
+
+<script src="js/app.js"></script>
+
+</body>
+
+</html>
