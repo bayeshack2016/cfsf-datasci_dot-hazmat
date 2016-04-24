@@ -1,0 +1,40 @@
+data_source: http://www.blm.gov/wo/st/en/prog/energy/oil_and_gas/statistics.html
+
+
+Variables: 
+
+num_leases_in_effect -  Total Number of Leases in Effect
+						This table contains the total number of leases, by state, considered “in effect” by the BLM at the end of each fiscal year.
+
+ num_acres_leased_yr -  Total Number of Acres Under Lease as of the Last Day of the Fiscal year
+						This table contains the total number of acres, by state, contained in leases considered “in effect” by the BLM at the end of each fiscal year.
+
+num_new_leases_yr - Number of New Leases Issued During the Fiscal Year
+					This table contains the total number of new leases, by state, issued by the BLM during each fiscal year. Leases issued over the course of a fiscal year may or may not be leases sold during that same year. For example, a lease might have been sold but not issued pending protest resolution. Following successful resolution, that lease would have been issued, but this process may not have concluded in the same fiscal year. This figure includes parcels sold at a competitive lease sale, as well as leases issued non-competitively.
+
+acres_leased_yr - 	Number of Acres Leased During the Fiscal Year
+					This table contains the total number of acres, by state, contained in new leases issued by the BLM during each fiscal year.
+
+num_producing_leases -  Number of Producing Leases on Federal Lands
+						This table contains the total number of producing leases by state as of the last day of the fiscal year.  
+
+num_producing_acres - 	Number of Producing Acres on Federal Lands
+						This table contains the total number of acres by state covered by producing leases as of the last day of the fiscal year.
+
+
+num_wells_spudded_yr - 	Number of Well Bores Started (Spud) During the Fiscal Year on Federal Lands
+						This table contains the total number of well bores started (spudded), by state, during each fiscal year. "Spudding in," or to "spud" a well bore, means to begin drilling operations, so a spudded well bore is one where drilling operations have begun.
+ 
+num_of_producible_wells - 	Number of Producible and Service Well Bores on Federal Lands
+							This table contains the total number of producible well bores by state as of the end of each fiscal year.  A well bore is considered producible if the well bore is capable of production. 
+
+
+num_of_producible_completions - Number of Producible and Service Completions on Federal Lands
+								This table contains the total number of producible and service completions, by state, during each fiscal year.  Separate service completions are for the benefit of oil and gas operations, such as water disposal, salt water disposal, water injection, gas injection, water source, steam injection, or monitoring.
+
+
+
+*** Not being used since information is not available for every state ***
+
+num_drill_permits_aproved_yr - 	Number of Drilling Permits Approved by Fiscal Year on Federal Lands
+								This table contains the total number of Applications for Permit to Drill (APDs) by state approved by the BLM each fiscal year.  Oil and gas operators may not begin drilling activities on a lease without an approved APD.  Note that a single lease may have multiple APDs approved and each well pad may have one or more APDs.
