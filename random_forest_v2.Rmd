@@ -1,18 +1,20 @@
 ---
-title: "Development of Machine Learning Models on Hazmat Incidences"
+title: "Development of Machine Learning Models on Prediction of Hazmat Incidences"
 date: "April 24, 2016"
-output: html_document
+output: 
+    md_document:
+        variant: markdown_github
 ---
 
-```{r, echo=F, comment=FALSE}
+```{r, echo=F, comment=FALSE, message=FALSE}
 library(dplyr)
 library(caret)
 library(stringr)
 ```
 
-Load Data with Merge Hazmat Incidents with Oil, Gas, and Employment Statistics
+#### Load Data with Merge Hazmat Incidents with Oil, Gas, and Employment Statistics
 ```{r}
-    all_data <- read.csv("Bayes_Hack/employment_gas_oil_data_merge.csv") %>% rename(year = Year)
+    all_data <- read.csv("../Bayes_Hack/employment_gas_oil_data_merge.csv") %>% rename(year = Year)
     # Get rid of territories since they are missing data
     territories <- c("Guam", "Puerto Rico", "Virgin Islands", "Dist. of Columbia" )
     all_data_mod <- all_data %>% filter(!(State %in% territories), year!=2016 )
@@ -21,7 +23,7 @@ Load Data with Merge Hazmat Incidents with Oil, Gas, and Employment Statistics
 
 #### Prototype Machine Learning Models with Caret:
 
-Create test and trainging sets:
+Create test and training sets:
 ```{r}
 set.seed(5678)
 all_data_clean <- all_data_mod %>% select(-year, -State)
@@ -35,7 +37,7 @@ all_data_clean <- all_data_mod %>% select(-year, -State)
 ```
 
 Fit Different Models to the training set:
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 
 # K-Nearest Neighbor Models    
 knn_fit <- train(number_of_hazardous_incidents ~. , training_set, method = "knn", 
@@ -59,6 +61,7 @@ random_knn
 forest_fit
 ```
 
+Comparison of Parameter selection on RSME for the different models:
 ```{r, comment=FALSE}
 library(gridExtra) 
 grid.arrange(   plot(knn_fit),
@@ -67,27 +70,30 @@ grid.arrange(   plot(knn_fit),
                 plot(forest_fit))
 ```
 
-The Random Forest is the best performing model. Let's run the model on the test set.
+The Random Forest is the best performing model. Let's run the model on the test set:
 ```{r}
 forest_predict <- predict(forest_fit, newdata = test_set)
 forest_RMSE <- RMSE(test_set$number_of_hazardous_incidents, forest_predict)
     qplot(forest_predict, test_set$number_of_hazardous_incidents,
-          xlab = "Predicted Values", ylab = "Actual Number of Accidents") + geom_abline() +
+          xlab = "Predicted Values", ylab = "Actual Number of Accidents",
+          main = "Fit of Predicted vs Actual Values from Random Forest Model") + geom_abline() +
     annotate("text", x = 1000, y = 400, label = paste0("RMSE: ", forest_RMSE), col = "violet")
 
 ```
 
-Measure of Feature Importance
-```{r, echo=FALSE, comment=FALSE}
+Measure of Feature Importance:
+```{r,comment=FALSE, message=FALSE}
 library(randomForest)
 random_forest <- randomForest(number_of_hazardous_incidents ~.,data = training_set,
-                              mtry = 7, importance = T)
+                              mtry = 10, importance = T)
 importance(random_forest)
-# varImpPlot(random_forest)
+
 ```
+Number of employee, number of acres leased for energy development, and number of leases for producing energy have the highes predictive value for predicting hazmat incidences.
+
 
 #### Data visualization of top three Features:
-```{r, comment=FALSE, warning=FALSE}
+```{r, comment=FALSE, warning=FALSE, message=F}
 important_features <- all_data_clean %>% select(employees_mining_logging_1000, num_acres_leased,num_producing_leases, number_of_hazardous_incidents)
 
 rpartTune <- train(number_of_hazardous_incidents ~ ., 
@@ -95,8 +101,13 @@ rpartTune <- train(number_of_hazardous_incidents ~ .,
                    trControl = train_control)
 
 rpartTune
+```
 
+Decision Tree Model:
+```{r, message=FALSE}
 library(rattle)
 library(rpart.plot)
 fancyRpartPlot(rpartTune$finalModel)
 ```
+
+This CART tree illustrates the effect that the most important features have on Hazmat related incidences. States that have more mining and logging employees tend to have more incidents, as well as states with more acres and leases involved in oil and gas production.
