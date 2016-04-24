@@ -111,19 +111,19 @@ random_knn
     ## Resampling results across tuning parameters:
     ## 
     ##   k  RMSE      Rsquared  RMSE SD  
-    ##   1  353.0473  NaN       16.419668
-    ##   2  346.7706  NaN        8.631361
-    ##   3  347.3136  NaN        6.924759
-    ##   4  350.8994  NaN        5.892116
-    ##   5  348.3185  NaN        8.088217
-    ##   6  348.2139  NaN        8.827851
-    ##   7  348.0658  NaN       12.790645
-    ##   8  345.5595  NaN       12.418408
-    ##   9  346.8270  NaN       11.467108
+    ##   1  353.3906  NaN       17.151187
+    ##   2  346.8305  NaN        9.682659
+    ##   3  348.9103  NaN        6.727763
+    ##   4  352.2084  NaN        5.103196
+    ##   5  349.0076  NaN        8.176299
+    ##   6  346.8379  NaN        9.171255
+    ##   7  346.2178  NaN       13.221337
+    ##   8  346.6719  NaN       13.423569
+    ##   9  345.5848  NaN       10.401730
     ## 
     ## Tuning parameter 'mtry' was held constant at a value of 1
     ## RMSE was used to select the optimal model using  the smallest value.
-    ## The final values used for the model were k = 8 and mtry = 1.
+    ## The final values used for the model were k = 9 and mtry = 1.
 
 ``` r
 forest_fit
@@ -136,27 +136,27 @@ forest_fit
     ## 
     ## Pre-processing: centered (10), scaled (10) 
     ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 746, 745, 744, 744, 745 
+    ## Summary of sample sizes: 744, 745, 745, 744, 746 
     ## Resampling results across tuning parameters:
     ## 
     ##   mtry  RMSE      Rsquared   RMSE SD   Rsquared SD
-    ##    6    118.6501  0.8794121  14.21495  0.02300776 
-    ##    7    117.5972  0.8811873  13.03770  0.01871440 
-    ##    8    117.4733  0.8810074  13.16539  0.01951565 
-    ##    9    118.0208  0.8796183  12.56639  0.02072011 
-    ##   10    118.8101  0.8783684  13.02250  0.02040294 
+    ##    6    118.0968  0.8798602  18.75113  0.03423760 
+    ##    7    117.0644  0.8806987  17.15956  0.03089014 
+    ##    8    115.8513  0.8826324  16.22027  0.02888434 
+    ##    9    115.3557  0.8836847  14.73656  0.02566873 
+    ##   10    114.9548  0.8843487  11.50430  0.01902786 
     ## 
     ## RMSE was used to select the optimal model using  the smallest value.
-    ## The final value used for the model was mtry = 8.
+    ## The final value used for the model was mtry = 10.
 
 Comparison of Parameter selection on RSME for the different models:
 
 ``` r
 library(gridExtra) 
-grid.arrange(   plot(knn_fit),
-                plot(knn_fit_pca),
-                plot(random_knn),
-                plot(forest_fit))
+grid.arrange(   plot(knn_fit, main = "KNN"),
+                plot(knn_fit_pca, main = "KNN w/ PCA"),
+                plot(random_knn, main = "Random KNN"),
+                plot(forest_fit, main = "Random Forest"))
 ```
 
 ![](random_forest_v2_files/figure-markdown_github/unnamed-chunk-5-1.png)
@@ -184,16 +184,16 @@ importance(random_forest)
 ```
 
     FALSE                                  %IncMSE IncNodePurity
-    FALSE employees_mining_logging_1000 102.048852    31929900.1
-    FALSE num_acres_leased_yr             4.992997      405265.4
-    FALSE num_acres_leased               52.420151    20732271.0
-    FALSE num_leases_in_effect           20.779338     8814001.4
-    FALSE num_new_leases_yr               3.485826      388586.5
-    FALSE num_of_producible_wells        25.158260    10859190.9
-    FALSE num_of_producible_completions  22.456119     9017303.7
-    FALSE num_producing_acres            14.483919     3977846.9
-    FALSE num_producing_leases           39.229052    15688411.1
-    FALSE num_wells_spudded_yr            6.452014     1239744.3
+    FALSE employees_mining_logging_1000 103.048886    32244509.2
+    FALSE num_acres_leased_yr             4.900269      403073.5
+    FALSE num_acres_leased               49.733157    21481798.5
+    FALSE num_leases_in_effect           20.916296     8965269.5
+    FALSE num_new_leases_yr               3.790445      421691.4
+    FALSE num_of_producible_wells        25.967869    11338985.5
+    FALSE num_of_producible_completions  21.676697     8407483.3
+    FALSE num_producing_acres            15.441596     4071874.5
+    FALSE num_producing_leases           37.851343    15339103.8
+    FALSE num_wells_spudded_yr            6.600018     1584128.6
 
 Number of employee, number of acres leased for energy development, and number of leases for producing energy have the highes predictive value for predicting hazmat incidences.
 
@@ -216,13 +216,13 @@ rpartTune
     FALSE 
     FALSE No pre-processing
     FALSE Resampling: Cross-Validated (5 fold) 
-    FALSE Summary of sample sizes: 968, 969, 969, 971, 971 
+    FALSE Summary of sample sizes: 971, 969, 969, 970, 969 
     FALSE Resampling results across tuning parameters:
     FALSE 
-    FALSE   cp          RMSE      Rsquared    RMSE SD   Rsquared SD
-    FALSE   0.06764493  246.4161  0.49339471  32.49397  0.15585362 
-    FALSE   0.10634129  312.0600  0.20206552  32.92707  0.08450907 
-    FALSE   0.15244884  344.7182  0.07541223  37.53558  0.02263899 
+    FALSE   cp          RMSE      Rsquared   RMSE SD   Rsquared SD
+    FALSE   0.06764493  247.0027  0.4997870  34.57944  0.14981194 
+    FALSE   0.10634129  305.5307  0.2396846  34.81037  0.14776424 
+    FALSE   0.15244884  338.9069  0.1125267  16.63308  0.04421087 
     FALSE 
     FALSE RMSE was used to select the optimal model using  the smallest value.
     FALSE The final value used for the model was cp = 0.06764493.
