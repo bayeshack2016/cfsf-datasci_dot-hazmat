@@ -1,0 +1,102 @@
+---
+title: "Development of Machine Learning Models on Hazmat Incidences"
+date: "April 24, 2016"
+output: html_document
+---
+
+```{r, echo=F, comment=FALSE}
+library(dplyr)
+library(caret)
+library(stringr)
+```
+
+Load Data with Merge Hazmat Incidents with Oil, Gas, and Employment Statistics
+```{r}
+    all_data <- read.csv("Bayes_Hack/employment_gas_oil_data_merge.csv") %>% rename(year = Year)
+    # Get rid of territories since they are missing data
+    territories <- c("Guam", "Puerto Rico", "Virgin Islands", "Dist. of Columbia" )
+    all_data_mod <- all_data %>% filter(!(State %in% territories), year!=2016 )
+```
+
+
+#### Prototype Machine Learning Models with Caret:
+
+Create test and trainging sets:
+```{r}
+set.seed(5678)
+all_data_clean <- all_data_mod %>% select(-year, -State)
+    ind <- sample(2, nrow(all_data_clean), replace = TRUE, prob = c(.75, .25))
+    training_set <- all_data_clean[ind ==1,] 
+    test_set <- all_data_clean[ind ==2,] 
+
+    #------------ For 5-fold cross validation for all models -----#
+    train_control <- trainControl(method = "cv", number = 5)
+    #--------------------------------------------------------------#
+```
+
+Fit Different Models to the training set:
+```{r, warning=FALSE}
+
+# K-Nearest Neighbor Models    
+knn_fit <- train(number_of_hazardous_incidents ~. , training_set, method = "knn", 
+                       preProcess = c("center", "scale"), trControl = train_control,
+                       tuneGrid = expand.grid(k = c(1,2,3,4,5,6)))
+
+knn_fit_pca <- train(number_of_hazardous_incidents ~. , training_set, method = "knn", 
+                           preProcess = c("scale", "pca"), trControl = train_control,
+                           tuneGrid = expand.grid(k = c(1,2,3,4,5,6, 7, 8, 9, 10)))
+random_knn <- train(number_of_hazardous_incidents ~. , training_set, method = "rknn", 
+                          preProcess = c("center", "scale"), trControl = train_control,
+                          tuneGrid = expand.grid(k = c(1,2,3,4,5,6,7,8,9),mtry = c(1)))
+
+forest_fit <- train(number_of_hazardous_incidents ~. , training_set, method = "rf", 
+                          preProcess = c("center", "scale"), trControl = train_control,
+                          tuneGrid = expand.grid(mtry = c(6,7,8,9,10)))
+
+knn_fit 
+knn_fit_pca 
+random_knn  
+forest_fit
+```
+
+```{r, comment=FALSE}
+library(gridExtra) 
+grid.arrange(   plot(knn_fit),
+                plot(knn_fit_pca),
+                plot(random_knn),
+                plot(forest_fit))
+```
+
+The Random Forest is the best performing model. Let's run the model on the test set.
+```{r}
+forest_predict <- predict(forest_fit, newdata = test_set)
+forest_RMSE <- RMSE(test_set$number_of_hazardous_incidents, forest_predict)
+    qplot(forest_predict, test_set$number_of_hazardous_incidents,
+          xlab = "Predicted Values", ylab = "Actual Number of Accidents") + geom_abline() +
+    annotate("text", x = 1000, y = 400, label = paste0("RMSE: ", forest_RMSE), col = "violet")
+
+```
+
+Measure of Feature Importance
+```{r, echo=FALSE, comment=FALSE}
+library(randomForest)
+random_forest <- randomForest(number_of_hazardous_incidents ~.,data = training_set,
+                              mtry = 7, importance = T)
+importance(random_forest)
+# varImpPlot(random_forest)
+```
+
+#### Data visualization of top three Features:
+```{r, comment=FALSE, warning=FALSE}
+important_features <- all_data_clean %>% select(employees_mining_logging_1000, num_acres_leased,num_producing_leases, number_of_hazardous_incidents)
+
+rpartTune <- train(number_of_hazardous_incidents ~ ., 
+                   data = important_features, method = "rpart",
+                   trControl = train_control)
+
+rpartTune
+
+library(rattle)
+library(rpart.plot)
+fancyRpartPlot(rpartTune$finalModel)
+```
