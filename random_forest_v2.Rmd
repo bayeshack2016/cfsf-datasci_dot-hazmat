@@ -64,10 +64,10 @@ forest_fit
 Comparison of Parameter selection on RSME for the different models:
 ```{r, comment=FALSE}
 library(gridExtra) 
-grid.arrange(   plot(knn_fit),
-                plot(knn_fit_pca),
-                plot(random_knn),
-                plot(forest_fit))
+grid.arrange(   plot(knn_fit, main = "KNN"),
+                plot(knn_fit_pca, main = "KNN w/ PCA"),
+                plot(random_knn, main = "Random KNN"),
+                plot(forest_fit, main = "Random Forest"))
 ```
 
 The Random Forest is the best performing model. Let's run the model on the test set:
