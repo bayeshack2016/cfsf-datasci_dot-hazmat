@@ -31,8 +31,6 @@ for(i in 1:length(levels(dat$State))){
 }
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
-
 ```r
 print(res$plot)
 ```
@@ -134,5 +132,3 @@ Below, we show those dates for which the incident count is anomolous to each sta
 ## 88    WY 2014-06-01        12
 ## 89    WY 2015-07-01        15
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
