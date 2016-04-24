@@ -16,8 +16,8 @@ The first tool is a model to predict the number of incidents that involved hazar
 * The office of hazardous material safety incident database:
     * https://hazmatonline.phmsa.dot.gov/IncidentReportsSearch/IncrSearch.aspx
 
-Further details can be found in the markdown document which describes the model building process. 
-* [RMarkdown Report](https://github.com/bayeshack2016/cfsf-datasci_dot-hazmat/blob/master/random_forest_v2.md)
+A *Random Forest model* was built using features from employment data from BLS and Oil and gas statistics data to predict number of Hamzat incidences at the state level. Further details can be found in the markdown document which describes the model selecion and building process:
+* [Markdown Report](https://github.com/bayeshack2016/cfsf-datasci_dot-hazmat/blob/master/random_forest_v2.md)
 * The model uses features of employment from BLS and Oil and gas statistics
 
 The model projection and actual data by state can be accessed and visualized through an interactive front-end tool.
