@@ -1,8 +1,8 @@
 var DATAFILE = 'data/data.csv' // input data file
 
-var FACTORS = [ {name:"Inflation", min:"0", max:"10", start:"1.1", step:0.1},
-                {name:"Gas Price", min:"1", max:"10", start:"2.62", step:0.01},
-                {name:"Oil PRice", min:"10", max:"120", start:"50.53", step:0.01} ]
+var FACTORS = [ {name:"Variable 1", min:"0", max:"100", start:"75"},
+                {name:"Variable 2", min:"1", max:"10", start:"3"},
+                {name:"Variable 3", min:"20", max:"50", start:"40"} ]
 // FACTORS will auto populate the HTML file with the above values
 
 
@@ -29,7 +29,6 @@ FACTORS.forEach(function(el,i){
   d3.select('#inputf'+(i+1))
       .attr('min',el.min)
       .attr('max',el.max)
-      .attr('step',el.step)
       .attr('value',el.start)
   d3.select('#outputf'+(i+1))
       .html(el.start)
@@ -139,6 +138,7 @@ function renderFirst(error, us, csvData) {
           let me = d3.select(this),
               thisText = fipsToState(+d.id)
           tt.follow(me, thisText)
+          setStateCallout(d3.select(this).data()[0].id)
         })
         .on("mouseout", tt.hide )
 
@@ -245,15 +245,17 @@ function setStateCallout (id) {
   var data = curData.find(function(el) {
     return +el.id === id
   })
-  d3.select("#callout-state").html(fipsToState(id))
+  d3.select("#callout-statename").html(fipsToState(curState))
+
   for (prop in data) {
     var domEl = d3.select("#callout-" + prop)
     if (domEl[0][0]) {
-      domEl.html(data[prop])
+      domEl.html(Math.round(data[prop]))
     }
   }
   // debugger
-  d3.select("#callout-value").html(data[curYear])
+  d3.select("#callout-predicted-value").html(Math.round(data.predicted_incidents_2015))
+  d3.select("#callout-actual-value").html(data.actual_incidents_2015)
 }
 
 function fipsToState (fips) {

@@ -5,20 +5,23 @@
   <meta charset="utf-8">
 
   <title>Bayes Hack - Dept of Transportation</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <!--build:css css/styles.css -->
+  <link rel="stylesheet" href="css/stylesheet.css">
+  <!-- endbuild -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css"> -->
 
-  <link rel="stylesheet" href="css/styles.vendor.css">
+  <!--build:css css/styles.vendor.css -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+  <!-- endbuild -->
   <!-- <link rel="stylesheet" href="vendor/jquery.dataTables.css"> -->
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.14/d3.js" charset="utf-8"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js" charset="utf-8"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+  <script src="vendor/d3.js" charset="utf-8"></script>
+  <script src="vendor/topojson.js" charset="utf-8"></script>
+  <script src="vendor/queue.js"></script>
   <script src="vendor/d3-legend.js"></script>
-  <script src="vendor/jquery.js"></script>
-  <script src="vendor/jquery.form.js"></script>
 </head>
 
 <body>
@@ -116,7 +119,9 @@
 </div>
 
 
-<script src="js/app.js"></script>
+<!--build:js js/app.js -->
+<script src="js/app.js" charset="utf-8"></script>
+<!-- endbuild -->
 
 </body>
 
