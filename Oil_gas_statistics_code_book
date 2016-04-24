@@ -1,4 +1,21 @@
-data_source: http://www.blm.gov/wo/st/en/prog/energy/oil_and_gas/statistics.html
+Data_source: 
+    Bureau of Land Management, Oil and Gas Statistics
+
+    http://www.blm.gov/wo/st/en/prog/energy/oil_and_gas/statistics.html
+
+
+Summary of Data Set
+--------------------
+
+The BLM manages nearly 700 million acres of mineral estate.  This acreage includes areas where either the BLM or other Federal agencies manage the surface, as well as areas where the surface is privately owned.  For the purposes of the information on this page, these lands are referred to as “Federal lands.”
+
+The BLM compiles a large amount of statistical information relating to oil and gas leasing on Federal lands.  Below are links to tables and spreadsheets with data that include the numbers of BLM-administered oil and gas leases, applications for permit to drill, and oil and gas wells.  Most of the statistics on this page cover Fiscal Years 1988-2015.  The data begin in 1988 because that was the first year the BLM began to issue leases under the Federal Onshore Oil and Gas Leasing Reform Act.  Tables 12 and 13 cover different timeframes.
+
+The definitions on this page apply to the BLM onshore leasing program only.
+
+The Department of the Interior's Office of Natural Resources Revenue (ONRR) maintains statistical data for Federal onshore sales volumes and reported royalty revenues
+
+
 
 
 Variables: 
