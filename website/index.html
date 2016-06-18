@@ -93,7 +93,7 @@
 
         <div class="row">
             <div class="four columns">
-                <form id="controls" action="" method="post" oninput="f1_result.value=parseInt(f1.value);f2_result.value=parseInt(f2.value)">
+                <form id="controls" action="" method="post" oninput="f1_result.value=parseInt(f1.value).toLocaleString();f2_result.value=parseInt(f2.value).toLocaleString()">
                     <label for="f1" id="labelf1">Var 1</label>
                     <input type="range" name="f1" id="inputf1" value="">
                     <output id="outputf1" name="f1_result"></output>

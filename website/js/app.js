@@ -250,12 +250,12 @@
     for (prop in data) {
       var domEl = d3.select("#callout-" + prop)
       if (domEl[0][0]) {
-        domEl.html(Math.round(data[prop]))
+        domEl.html(Math.round(data[prop]).toLocaleString())
       }
     }
     // debugger
-    d3.select("#callout-predicted-value").html(Math.round(data.predicted_incidents_2015))
-    d3.select("#callout-actual-value").html(data.actual_incidents_2015)
+    d3.select("#callout-predicted-value").html(Math.round(data.predicted_incidents_2015).toLocaleString())
+    d3.select("#callout-actual-value").html(data.actual_incidents_2015.toLocaleString())
   }
 
   function fipsToState (fips) {
@@ -308,8 +308,8 @@
   'use strict';
   var DATAFILE = 'data/model_demo_df.csv' // input data file
 
-  var FACTORS = [ {name:"Producing Acres", min:"0", max:"90000", start:"44000", step:2000},
-                  {name:"Mining/Logging Employees", min:"0", max:"40000", start:"12000", step:1000} ]
+  var FACTORS = [ {name:"Producing Acres", min:"0", max:"90000", start:"44,000", step:2000},
+                  {name:"Mining/Logging Employees", min:"0", max:"40000", start:"12,000", step:1000} ]
   // FACTORS will auto populate the HTML file with the above values
 
   var lookupTable = []
@@ -421,6 +421,7 @@
     let gaugeReadout = d3.select('.gauge-readout')
     let newWidth = gaugeScale(value)
     let rounded = Math.round(value*100)/100
+    rounded = rounded.toLocaleString()
 
     gaugeReadout.text(rounded)
     gaugeBar.transition(200).attr('width',newWidth)
