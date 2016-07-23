@@ -17,6 +17,25 @@
     font-size: 12px;
     line-height: 20px; }
 
+.chart-container {
+  border: 1px #ccc solid;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
 .background {
   fill: none;
   pointer-events: all; }
@@ -34,29 +53,40 @@
   stroke-linecap: round;
   stroke-linejoin: round; }
 
-path.q0-9 {
+.gauge-outline {
+  stroke: #000;
+  stroke-width: 2px;
+  fill: none; }
+
+.gauge-readout {
+  font-size: 22px; }
+
+.q0-9 {
   fill: #fff5f0; }
 
-path.q1-9 {
+.q1-9 {
   fill: #fee0d2; }
 
-path.q2-9 {
+.q2-9 {
   fill: #fcbba1; }
 
-path.q3-9 {
+.q3-9 {
   fill: #fc9272; }
 
-path.q4-9 {
+.q4-9 {
   fill: #fb6a4a; }
 
-path.q5-9 {
+.q5-9 {
   fill: #ef3b2c; }
 
-path.q6-9 {
+.q6-9 {
   fill: #cb181d; }
 
-path.q7-9 {
+.q7-9 {
   fill: #a50f15; }
 
-path.q8-9 {
+.q8-9 {
   fill: #67000d; }
+
+path {
+  fill: #fff; }
