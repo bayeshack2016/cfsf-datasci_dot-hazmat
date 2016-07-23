@@ -17,6 +17,25 @@
     font-size: 12px;
     line-height: 20px; }
 
+.chart-container {
+  border: 1px #ccc solid;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
 .background {
   fill: none;
   pointer-events: all; }

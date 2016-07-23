@@ -6,7 +6,6 @@
                   {name:"Mining/Logging Employees", min:"0", max:"40000", start:"12,000", step:1000} ]
   // FACTORS will auto populate the HTML file with the above values
 
-
   function theMODEL(inputs) {
     // theMODEL takes in inputs, sends it to the model, and returns a new data array
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
@@ -73,13 +72,16 @@
   tt.init("body")
 
   // define the svg properties
-  var width = 600,
-      height = 400,
+  var fullWidth = 600,
+      fullHeight = 400,
       active = d3.select(null);
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = fullWidth - margin.left - margin.right,
+      height = fullHeight - margin.top - margin.bottom;
 
   var projection = d3.geo.albersUsa()
       .scale(800)
-      .translate([width / 2, height / 2]);
+      .translate([fullWidth / 2, fullHeight / 2]);
 
   var zoom = d3.behavior.zoom()
       .translate([0, 0])
@@ -90,22 +92,43 @@
   var path = d3.geo.path()
       .projection(projection);
 
-  var mapSvg = d3.select("#map_container").append("svg")
-      .attr("width", width)
-      .attr("height", height)
+  var mapSvg = d3.select("#map-container").append("svg")
+      .attr("width", fullWidth)
+      .attr("height", fullHeight)
       .on("click", stopped, true);
 
   mapSvg.append("rect")
       .attr("class", "background")
-      .attr("width", width)
-      .attr("height", height)
+      .attr("width", fullWidth)
+      .attr("height", fullHeight)
       .on("click", reset);
 
-  var g = mapSvg.append("g");
+  var mg = mapSvg.append("g");
 
   mapSvg
       .call(zoom) // delete this line to disable free zooming
       .call(zoom.event);
+
+  var barSvg = d3.select("#bar-container").append("svg")
+      .attr("width", fullWidth)
+      .attr("height", fullHeight)
+  var bg = barSvg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var x = d3.scale.ordinal()
+      .rangeRoundBands([0, width], .1);
+
+  var y = d3.scale.linear()
+      .range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .ticks(10);
 
   // d3 scale for coloring via css
   var quantize = d3.scale.quantize()
@@ -126,7 +149,7 @@
     d3.select('#total-incidents').html(totalIncidents.toLocaleString())
 
     // draw map
-    g.selectAll("path")
+    mg.selectAll("path")
         .data(topojson.feature(us, us.objects.states).features)
       .enter().append("path")
         .attr("d", path)
@@ -135,23 +158,60 @@
           return 'state ' + quantize(colorMap.get(d.id))
         })
         .on('mouseover', function(d) {
-            let me = d3.select(this),
+            var me = d3.select(this),
                 thisText = fipsToState(+d.id)
             tt.follow(me, thisText)
             setStateCallout(d3.select(this).data()[0].id)
           })
         .on("mouseout", tt.hide )
 
-    g.append("path")
+    mg.append("path")
         .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
         .attr("class", "mesh")
         .attr("d", path);
 
-    // g.selectAll('path')
+    // mg.selectAll('path')
     //     .data(topojson.feature(us, us.objects.counties).features)
     //   .enter().append("path")
     //     .attr("d", path)
     //     .attr('class', 'county')
+
+    // draw barchart
+    x.domain(allData.map(function(d) { return d.state; }));
+    y.domain([0, d3.max(allData, function(d) { return +d[year]; })]);
+
+    bg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    bg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Incidents");
+
+    bg.selectAll(".bar")
+        .data(allData)
+      .enter().append("rect")
+        .attr("class", function(d){
+          return 'bar ' + quantize(colorMap.get(d.id))
+        })
+        .attr("x", function(d) { return x(d.state); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d[year]); })
+        .attr("height", function(d) { return height - y(d[year]); })
+        .on('mouseover', function(d) {
+            var me = d3.select(this),
+                thisText = fipsToState(+d.id) + ': ' + colorMap.get(d.id)
+            tt.follow(me, thisText)
+        })
+        .on("mouseout", tt.hide )
+
   };
 
   function setColorKey (data, value) {
@@ -174,8 +234,8 @@
         dy = bounds[1][1] - bounds[0][1],
         x = (bounds[0][0] + bounds[1][0]) / 2,
         y = (bounds[0][1] + bounds[1][1]) / 2,
-        scale = .9 / Math.max(dx / width, dy / height),
-        translate = [width / 2 - scale * x, height / 2 - scale * y];
+        scale = .9 / Math.max(dx / fullWidth, dy / fullHeight),
+        translate = [fullWidth / 2 - scale * x, fullHeight / 2 - scale * y];
 
     mapSvg.transition()
         .duration(750)
@@ -196,8 +256,8 @@
 
   function zoomed() {
     // calculate zoom
-    g.style("stroke-width", 1.5 / d3.event.scale + "px");
-    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    mg.style("stroke-width", 1.5 / d3.event.scale + "px");
+    mg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   }
 
   function stopped() {
@@ -237,6 +297,7 @@
         .attr("class", function(d){
           return 'state ' + quantize(colorMap.get(d.id))
         })
+    // TODO: update bars with new height/colors
   }
 
   function setStateCallout (id) {
