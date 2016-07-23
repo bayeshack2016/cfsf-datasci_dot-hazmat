@@ -25,17 +25,6 @@
         <div class="row">
             <div class="eight columns chart-container">
                 <div id="map_container" class="row"></div>
-                <div class="row">
-                    <select name="data-year" id="data-year-dropdown">
-                        <option value="predicted_incidents_2015" selected>predicted</option>
-                        <option value="actual_incidents_2015">actual</option>
-                    </select>
-                    <div class="hidden">
-                        <!-- todo: change dropdown to radio inputs-->
-                        <input type="radio" name="data-year-radio" value="predicted_incidents_2015" checked="true">predicted</input>
-                        <input type="radio" name="data-year-radio" value="actual_incidents_2015">actual</input>
-                    </div>
-                </div>
             </div>
             <div id="" class="three columns">
                 <table class="u-full-width">
@@ -53,10 +42,6 @@
                         <tr>
                             <td id="callout-label-predicted-value">Predicted Value:</td>
                             <td id="callout-predicted-value" class="callout"></td>
-                        </tr>
-                        <tr>
-                            <td id="callout-label-actual-value">Actual Value:</td>
-                            <td id="callout-actual-value" class="callout"></td>
                         </tr>
                         <tr>
                             <td id="callout-label-employees_mining_loging">employees_mining_loging:</td>
@@ -83,17 +68,11 @@
             <hr>
         </div>
 
-        <div class="row">
-            This is the Predict-o-meter:
-        </div>
 
-        <div class="row">
-            <div id="chart_container" class="twelve columns chart-container"> </div>
-        </div>
 
         <div class="row">
             <div class="four columns">
-                <form id="controls" action="" method="post" oninput="f1_result.value=parseInt(f1.value).toLocaleString();f2_result.value=parseInt(f2.value).toLocaleString()">
+                <form id="controls" action="" method="post" oninput="f1_result.value=parseInt(f1.value).toLocaleString();f2_result.value=parseInt(f2.value).toLocaleString();f3_result.value=parseInt(f3.value).toLocaleString();f4_result.value=parseInt(f4.value).toLocaleString();">
                     <label for="f1" id="labelf1">Var 1</label>
                     <input type="range" name="f1" id="inputf1" value="">
                     <output id="outputf1" name="f1_result"></output>
@@ -101,15 +80,21 @@
                     <label for="f2" id="labelf2">Var 2</label>
                     <input type="range" name="f2" id="inputf2" value="">
                     <output id="outputf2" name="f2_result"></output>
+
+                    <label for="f3" id="labelf3">Var 3</label>
+                    <input type="range" name="f3" id="inputf3" value="">
+                    <output id="outputf3" name="f3_result"></output>
+
+                    <label for="f4" id="labelf4">Var 4</label>
+                    <input type="range" name="f4" id="inputf4" value="">
+                    <output id="outputf4" name="f4_result"></output>
                 </form>
             </div>
             <div class="four columns">
-              <p>
-                Department of Transportation Prompt
+              <p id="total-incidents-label">
+                Total Incidents:
               </p>
-              <p>
-                <a href="http://bayeshack.org/transportation.html">The prompt</a> for the Bayes hackathon
-              </p>
+              <p id="total-incidents"></p>
             </div>
         </div>
 
