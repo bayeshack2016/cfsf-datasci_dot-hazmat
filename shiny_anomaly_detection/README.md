@@ -5,7 +5,7 @@ by [Jude Calvillo](http://linkd.in/vVlpXA)
 
 This is nowhere near complete, but in case my Data Science Working Group, Code for SF, and/or Bayes Hack friends would ocassionally like to see my progress, go here:  
 
-### [Shiny + R DoT Anomaly Detector](https://judec.shinyapps.io/shiny_anomaly_detection/)
+### [Shiny + R DoT Anomaly Detector >>](https://judec.shinyapps.io/shiny_anomaly_detection/)
 
 Much more to come! Stay tuned...
 
