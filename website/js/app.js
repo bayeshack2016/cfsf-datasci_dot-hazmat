@@ -82,7 +82,7 @@
   var fullWidth = 625,
       fullHeight = 400,
       active = d3.select(null);
-  var margin = {top: 20, right: 10, bottom: 20, left: 40},
+  var margin = {top: 20, right: 0, bottom: 20, left: 40},
       width = fullWidth - margin.left - margin.right,
       height = fullHeight - margin.top - margin.bottom;
 
@@ -136,7 +136,7 @@
       .scale(y)
       .orient("left")
       .ticks(10)
-      .tickFormat(d3.format(",.2r"))
+      .tickFormat(d3.format(".2s"))
 
   // d3 scale for coloring via css
   var quantize = d3.scale.quantize()

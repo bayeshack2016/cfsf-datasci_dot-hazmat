@@ -36,6 +36,10 @@
   display: none;
 }
 
+.x.axis {
+  font-size: 8px;
+}
+
 .background {
   fill: none;
   pointer-events: all; }
