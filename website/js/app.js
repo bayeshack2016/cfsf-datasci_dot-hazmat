@@ -10,9 +10,16 @@
     // theMODEL takes in inputs, sends it to the model, and returns a new data array
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
 
-    d3.csv('data/randdata2.csv', function(data){
-      redrawAfterCall(data)
+    allData.forEach(function(state){
+      state[year] = (Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])
     })
+
+    redrawAfterCall(allData)
+
+    // d3.csv('data/randdata2.csv', function(data){
+    //   redrawAfterCall(data)
+    // })
+
   }
 
 
@@ -128,7 +135,8 @@
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left")
-      .ticks(10);
+      .ticks(10)
+      .tickFormat(d3.format(",.2r"))
 
   // d3 scale for coloring via css
   var quantize = d3.scale.quantize()
@@ -207,7 +215,7 @@
         .attr("height", function(d) { return height - y(d[year]); })
         .on('mouseover', function(d) {
             var me = d3.select(this),
-                thisText = fipsToState(+d.id) + ': ' + colorMap.get(d.id)
+                thisText = fipsToState(+d.id) + ': ' + colorMap.get(d.id).toLocaleString()
             tt.follow(me, thisText)
         })
         .on("mouseout", tt.hide )
@@ -277,10 +285,10 @@
   dispatcher.on('changeInput', function(year){
       // read input values,
       var inputs = [
-        d3.select("#inputf1").node().value,
-        d3.select("#inputf2").node().value,
-        d3.select("#inputf3").node().value,
-        d3.select("#inputf4").node().value
+        +d3.select("#inputf1").node().value,
+        +d3.select("#inputf2").node().value,
+        +d3.select("#inputf3").node().value,
+        +d3.select("#inputf4").node().value
       ]
 
       theMODEL(inputs)
@@ -292,12 +300,23 @@
     d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + currentYear + ':')
     d3.select('#total-incidents').html(totalIncidents.toLocaleString())
 
+    y.domain([0, d3.max(allData, function(d) { return +d[year]; })]);
+    d3.select('.y.axis').transition().call(yAxis)
+
     setColorKey(allData, year)
     d3.selectAll(".state")
         .attr("class", function(d){
           return 'state ' + quantize(colorMap.get(d.id))
         })
-    // TODO: update bars with new height/colors
+    bg.selectAll(".bar")
+        .attr("class", function(d){
+          return 'bar ' + quantize(colorMap.get(d.id))
+        })
+        .transition()
+        .attr("x", function(d) { return x(d.state); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d[year]); })
+        .attr("height", function(d) { return height - y(d[year]); })
   }
 
   function setStateCallout (id) {
