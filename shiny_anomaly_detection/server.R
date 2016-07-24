@@ -37,12 +37,19 @@ for(i in 1:length(levels(dat$State))){
     res_df <- rbind(res_df, per_state)
 }
 
+## List anomolous states
+names(res_df)[2] <- c("incidents")
+res_df <- res_df[c(3,1,2)]
+
 ## Initiate Shiny Server instance.
 shinyServer(
     function(input, output){
     
         ## Simply show the user the value they chose.
-        output$selectNUM <- renderText({paste(input$month, "MONTH")})
+        output$selectMONTH <- renderText({paste("Month Selected:", input$selectdate)})
+        
+        ## Show anomolous states (preview / proof of concept)
+        output$anonSTATES <- renderTable({res_df})
         
         ## Render first plot (basic anomaly plot for the last / feature state)
         output$plotANOM <- renderPlot({res$plot})
