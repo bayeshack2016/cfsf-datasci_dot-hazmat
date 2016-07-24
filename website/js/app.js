@@ -64,8 +64,8 @@
       element.on('mousemove', function() {
         let position = d3.mouse(document.body);
         d3.select('#tooltip')
-          .style('top', ( (position[1] + 30)) + "px")
-          .style('left', ( position[0]) + "px");
+          .style('top', ( position[1] - 8 ) + "px")
+          .style('left', ( position[0] + 16 ) + "px");
         d3.select('#tooltip .value')
           .html(caption);
       });
@@ -79,10 +79,10 @@
   tt.init("body")
 
   // define the svg properties
-  var fullWidth = 600,
+  var fullWidth = 625,
       fullHeight = 400,
       active = d3.select(null);
-  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+  var margin = {top: 20, right: 10, bottom: 20, left: 40},
       width = fullWidth - margin.left - margin.right,
       height = fullHeight - margin.top - margin.bottom;
 
@@ -123,7 +123,7 @@
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   var x = d3.scale.ordinal()
-      .rangeRoundBands([0, width], .1);
+      .rangeRoundBands([0, width], .2);
 
   var y = d3.scale.linear()
       .range([height, 0]);
