@@ -10,9 +10,16 @@
     // theMODEL takes in inputs, sends it to the model, and returns a new data array
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
 
-    d3.csv('data/randdata2.csv', function(data){
-      redrawAfterCall(data)
+    allData.forEach(function(state){
+      state[year] = (Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])
     })
+
+    redrawAfterCall(allData)
+
+    // d3.csv('data/randdata2.csv', function(data){
+    //   redrawAfterCall(data)
+    // })
+
   }
 
 
@@ -57,8 +64,8 @@
       element.on('mousemove', function() {
         let position = d3.mouse(document.body);
         d3.select('#tooltip')
-          .style('top', ( (position[1] + 30)) + "px")
-          .style('left', ( position[0]) + "px");
+          .style('top', ( position[1] - 8 ) + "px")
+          .style('left', ( position[0] + 16 ) + "px");
         d3.select('#tooltip .value')
           .html(caption);
       });
@@ -72,10 +79,10 @@
   tt.init("body")
 
   // define the svg properties
-  var fullWidth = 600,
+  var fullWidth = 625,
       fullHeight = 400,
       active = d3.select(null);
-  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+  var margin = {top: 20, right: 0, bottom: 20, left: 40},
       width = fullWidth - margin.left - margin.right,
       height = fullHeight - margin.top - margin.bottom;
 
@@ -116,7 +123,7 @@
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   var x = d3.scale.ordinal()
-      .rangeRoundBands([0, width], .1);
+      .rangeRoundBands([0, width], .2);
 
   var y = d3.scale.linear()
       .range([height, 0]);
@@ -128,7 +135,8 @@
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left")
-      .ticks(10);
+      .ticks(10)
+      .tickFormat(d3.format(".2s"))
 
   // d3 scale for coloring via css
   var quantize = d3.scale.quantize()
@@ -207,7 +215,7 @@
         .attr("height", function(d) { return height - y(d[year]); })
         .on('mouseover', function(d) {
             var me = d3.select(this),
-                thisText = fipsToState(+d.id) + ': ' + colorMap.get(d.id)
+                thisText = fipsToState(+d.id) + ': ' + colorMap.get(d.id).toLocaleString()
             tt.follow(me, thisText)
         })
         .on("mouseout", tt.hide )
@@ -277,10 +285,10 @@
   dispatcher.on('changeInput', function(year){
       // read input values,
       var inputs = [
-        d3.select("#inputf1").node().value,
-        d3.select("#inputf2").node().value,
-        d3.select("#inputf3").node().value,
-        d3.select("#inputf4").node().value
+        +d3.select("#inputf1").node().value,
+        +d3.select("#inputf2").node().value,
+        +d3.select("#inputf3").node().value,
+        +d3.select("#inputf4").node().value
       ]
 
       theMODEL(inputs)
@@ -292,12 +300,23 @@
     d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + currentYear + ':')
     d3.select('#total-incidents').html(totalIncidents.toLocaleString())
 
+    y.domain([0, d3.max(allData, function(d) { return +d[year]; })]);
+    d3.select('.y.axis').transition().call(yAxis)
+
     setColorKey(allData, year)
     d3.selectAll(".state")
         .attr("class", function(d){
           return 'state ' + quantize(colorMap.get(d.id))
         })
-    // TODO: update bars with new height/colors
+    bg.selectAll(".bar")
+        .attr("class", function(d){
+          return 'bar ' + quantize(colorMap.get(d.id))
+        })
+        .transition()
+        .attr("x", function(d) { return x(d.state); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d[year]); })
+        .attr("height", function(d) { return height - y(d[year]); })
   }
 
   function setStateCallout (id) {

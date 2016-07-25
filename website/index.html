@@ -25,9 +25,8 @@
         <div class="row">
             <div class="eight columns">
                 <div id="map-container" class="row chart-container"></div>
-                <div id="bar-container" class="row chart-container"></div>
             </div>
-            <div id="" class="three columns">
+            <div id="state-callout" class="three columns">
                 <table class="u-full-width">
                     <thead class="hidden">
                         <tr>
@@ -62,14 +61,16 @@
                         </tr>
                     </tbody>
                 </table>
+                <p id="total-incidents-label">
+                  Total Incidents:
+                </p>
+                <p id="total-incidents"></p>
             </div>
         </div>
 
         <div class="row">
             <hr>
         </div>
-
-
 
         <div class="row">
             <div class="four columns">
@@ -91,12 +92,14 @@
                     <output id="outputf4" name="f4_result"></output>
                 </form>
             </div>
-            <div class="four columns">
-              <p id="total-incidents-label">
-                Total Incidents:
-              </p>
-              <p id="total-incidents"></p>
+            <div class="eight columns">
+              <div id="bar-container" class="row chart-container"></div>
             </div>
+        </div>
+        <div class="row">
+          <p>
+            
+          </p>
         </div>
 
 
