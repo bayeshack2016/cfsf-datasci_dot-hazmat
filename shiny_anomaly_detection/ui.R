@@ -13,18 +13,34 @@
 ##
 
 library(shiny)
+library(leaflet)
 
 shinyUI(pageWithSidebar(
-headerPanel("DoT Hazmat Anomaly Detector"),
-    sidebarPanel(
-        p("This app helps DoT executives identify which states exhibited a hazmat incident frequency that was
-            was anomalous to their respective norms."),
-        sliderInput("month", label ="Random Slider :)", value = 1, min = 1, max = 12)
-        ),
-    mainPanel(
-        h3(icon("truck", lib="font-awesome"),"Last Month's Anomalous States"),
-        h4(verbatimTextOutput("selectNUM")),
-        plotOutput("plotANOM")
+headerPanel("U.S. Dept. of Transportation: Hazmat Incident Anomaly Detector"),
+sidebarPanel(
+    p("This app helps DoT executives identify which states exhibited hazmat incident totals that
+      were -truly- anomalous to their respective norms. Please select your month of concern below.
+      More state-by-state features, and greater date-range granularity, will be added asap."),
+    dateInput('selectdate',
+              label = paste('Select Month (default = last month)'),
+              value = as.character(Sys.Date()),
+              min = Sys.Date() - 365, max = Sys.Date(),
+              format = "mm/yy",
+              startview = 'year'),
+    h2(" "),
+    h4(icon("truck", lib="font-awesome"),"Anomalous States"),
+    h4(verbatimTextOutput("selectMONTH")),
+    tableOutput("anonSTATES")
+    ),
+mainPanel(
+    h3(icon("map-o", lib="font-awesome"),"Anomalous States Heatmap"),
+    leafletOutput("theMAP"),
+    h2(" "),
+    column(6, h4(icon("clock-o", lib="font-awesome"),"Selected State's Incident Timeline"),
+            plotOutput("plotANOM")),
+    column(6, h4(icon("info", lib="font-awesome"),"Selected State's Summary Info"),
+            h2(" "), 
+            p("This area will soon display some summary stats, like total and average incident counts for the last year (vs. total and average for other states)"))
     )
   )
 )
