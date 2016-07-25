@@ -38,6 +38,7 @@
         .attr('min',el.min)
         .attr('max',el.max)
         .attr('value',el.start)
+        .attr('step',el.step)
     d3.select('#outputf'+(i+1))
         .html(el.start)
   })
