@@ -17,6 +17,7 @@
     <script src="vendor/topojson.js" charset="utf-8"></script>
     <script src="vendor/queue.js"></script>
     <script src="vendor/d3-legend.js"></script>
+    <script src="js/line-graph.js"></script>
 </head>
 
 <body>
@@ -69,6 +70,12 @@
         </div>
 
         <div class="row">
+          <div class="twelve columns">
+            <div id="bar-container" class="chart-container"></div>
+          </div>
+        </div>
+
+        <div class="row">
             <hr>
         </div>
 
@@ -93,12 +100,12 @@
                 </form>
             </div>
             <div class="eight columns">
-              <div id="bar-container" class="row chart-container"></div>
+              <div id="line-container" class="chart-container"></div>
             </div>
         </div>
         <div class="row">
           <p>
-            
+
           </p>
         </div>
 
