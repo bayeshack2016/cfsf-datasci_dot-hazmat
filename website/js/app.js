@@ -11,7 +11,7 @@
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
 
     allData.forEach(function(state){
-      state[year] = Math.round(Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])
+      state[year] = Math.round((Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])/100)
     })
 
     redrawAfterCall(allData)
@@ -349,7 +349,7 @@
     var index = historicalData.findIndex(function(el){
       return el.year === currentYear
     })
-    historicalData[index].num_incidents = totalIncidents/100
+    historicalData[index].num_incidents = totalIncidents
 
     lineChart.datum(historicalData).call(line)
   }
