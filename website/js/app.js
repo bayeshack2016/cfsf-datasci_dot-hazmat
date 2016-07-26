@@ -11,7 +11,7 @@
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
 
     allData.forEach(function(state){
-      state[year] = (Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])
+      state[year] = Math.round(Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])
     })
 
     redrawAfterCall(allData)
@@ -22,6 +22,10 @@
 
   }
 
+/*
+  historical data from http://www.phmsa.dot.gov/hazmat/library/data-stats/incidents
+  "10 Year Incident Summary Reports" link to hazmat intelligence portal @hip.phmsa.dot.gov
+*/
 
   // figure out the current year and set a keystring accordingly
   var currentYear = new Date().getFullYear()
@@ -42,6 +46,7 @@
   var colorMap = d3.map()
 
   var allData,
+      historicalData,
       fipsData,
       totalIncidents
 
@@ -79,12 +84,17 @@
   tt.init("body")
 
   // define the svg properties
-  var fullWidth = 625,
+  var active = d3.select(null),
+      fullWidth = 625,
       fullHeight = 400,
-      active = d3.select(null);
-  var margin = {top: 20, right: 0, bottom: 20, left: 40},
-      width = fullWidth - margin.left - margin.right,
-      height = fullHeight - margin.top - margin.bottom;
+      barFullWidth = 950,
+      barFullHeight = 200,
+      lineFullWidth = 500,
+      lineFullHeight = 300
+
+  var margin = {top: 20, right: 10, bottom: 20, left: 40},
+      barWidth = barFullWidth - margin.left - margin.right,
+      barHeight = barFullHeight - margin.top - margin.bottom
 
   var projection = d3.geo.albersUsa()
       .scale(800)
@@ -117,16 +127,28 @@
       .call(zoom.event);
 
   var barSvg = d3.select("#bar-container").append("svg")
-      .attr("width", fullWidth)
-      .attr("height", fullHeight)
+      .attr("width", barFullWidth)
+      .attr("height", barFullHeight)
   var bg = barSvg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  var lineChart = d3.select('#line-container')
+  lineFullWidth = lineChart.node().getBoundingClientRect().width
+
+  var line = lineGraph()
+    .width(lineFullWidth)
+    .height(lineFullHeight)
+    .margin(margin)
+    .xaccessor('year')
+    .yaccessor('num_incidents')
+    .tickFormat(d3.format('0s'))
+
+
   var x = d3.scale.ordinal()
-      .rangeRoundBands([0, width], .2);
+      .rangeRoundBands([0, barWidth], .2);
 
   var y = d3.scale.linear()
-      .range([height, 0]);
+      .range([barHeight, 0]);
 
   var xAxis = d3.svg.axis()
       .scale(x)
@@ -145,12 +167,14 @@
   queue()
     .defer(d3.json, 'data/topo/us-states-10m.json') // get map
     .defer(d3.csv, DATAFILE) // get data
+    .defer(d3.csv, 'data/year-count.csv') // get historical data
     .await(renderFirst)
 
-  function renderFirst(error, us, csvData) {
+  function renderFirst(error, us, csvData, histData) {
     if (error) throw error;
 
     allData = csvData
+    historicalData = histData
     setColorKey(allData, year)
     totalIncidents = calculateTotalIncidents(allData, year)
     d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + currentYear + ':')
@@ -190,7 +214,7 @@
 
     bg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + barHeight + ")")
         .call(xAxis);
 
     bg.append("g")
@@ -212,7 +236,7 @@
         .attr("x", function(d) { return x(d.state); })
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d[year]); })
-        .attr("height", function(d) { return height - y(d[year]); })
+        .attr("height", function(d) { return barHeight - y(d[year]); })
         .on('mouseover', function(d) {
             var me = d3.select(this),
                 thisText = fipsToState(+d.id) + ': ' + colorMap.get(d.id).toLocaleString()
@@ -220,6 +244,10 @@
         })
         .on("mouseout", tt.hide )
 
+    // draw lineGraph
+    historicalData.push({year: currentYear, num_incidents: totalIncidents})
+    historicalData.forEach(function(el){ el.num_incidents = +el.num_incidents})
+    lineChart.datum(historicalData).call(line)
   };
 
   function setColorKey (data, value) {
@@ -316,7 +344,14 @@
         .attr("x", function(d) { return x(d.state); })
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d[year]); })
-        .attr("height", function(d) { return height - y(d[year]); })
+        .attr("height", function(d) { return barHeight - y(d[year]); })
+
+    var index = historicalData.findIndex(function(el){
+      return el.year === currentYear
+    })
+    historicalData[index].num_incidents = totalIncidents/100
+
+    lineChart.datum(historicalData).call(line)
   }
 
   function setStateCallout (id) {

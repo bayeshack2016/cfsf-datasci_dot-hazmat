@@ -94,3 +94,9 @@
 
 path {
   fill: #fff; }
+
+.line {
+  fill: none;
+  stroke: #fb6a4a;
+  stroke-width: 1.5px;
+}
