@@ -1,13 +1,15 @@
 ## Shiny + R Anomaly App for the U.S. Dept. of Transportation
 ## By Jude Calvillo (Data Science Working Group @ Code for San Francisco)
 ##
-## Status: July 23, 2016:
+## Status: July 26, 2016:
 ## ---------------------
-## v1.1 - Just initiating app dev
+## v1.12 - Starting to add functionality and interactivity
 ##
-## - Initiating server and UI R scripts.
-## - Need to conceptualize UI and immediately deliverable features before continuing w/UI.
-##   I should be doing this over the weekend.
+## - UI's tableOutput now working and soon to be reactive
+## - SERVER's Leaflet map rendering now working, with variable polygon opacity, and soon to be reactive
+## - Need to make both of the above reactive to user's month selection
+## - Need to make state-specific incident timeline and summary (bottom columns) reactive to user's 
+##   Leaflat map clicks
 ##
 ## ----------------------------------
 ##
@@ -18,9 +20,9 @@ library(leaflet)
 shinyUI(pageWithSidebar(
 headerPanel("U.S. Dept. of Transportation: Hazmat Incident Anomaly Detector"),
 sidebarPanel(
-    p("This app helps DoT executives identify which states exhibited hazmat incident totals that
+    p("This app helps DoT executives identify which states exhibited monthly hazmat incident totals that
       were -truly- anomalous to their respective norms. Please select your month of concern below.
-      More state-by-state features, and greater date-range granularity, will be added asap."),
+      More state-by-state features."),
     dateInput('selectdate',
               label = paste('Select Month (default = last month)'),
               value = as.character(Sys.Date()),
@@ -31,6 +33,7 @@ sidebarPanel(
     h4(icon("truck", lib="font-awesome"),"Anomalous States"),
     h4(verbatimTextOutput("selectMONTH")),
     tableOutput("anonSTATES")
+    # verbatimTextOutput("anonSTATES")
     ),
 mainPanel(
     h3(icon("map-o", lib="font-awesome"),"Anomalous States Heatmap"),
