@@ -1,4 +1,5 @@
 // TODO: add readout for state total incidents next to h3
+// TODO: enable call to "model" on slider reset
   var DATAFILE = 'data/randdata.csv' // input data file
 
 // TODO: multiply max by 1.5 or so to allow room to grow
@@ -66,7 +67,7 @@
     follow: function(element, caption, options) {
       element.on('mousemove', null);
       element.on('mousemove', function() {
-        let position = d3.mouse(document.body);
+        var position = d3.mouse(document.body);
         d3.select('#tooltip')
           .style('top', ( position[1] - 8 ) + "px")
           .style('left', ( position[0] + 16 ) + "px");
@@ -312,7 +313,7 @@
   })
 
   /* dispatcher events */
-  let dispatcher = d3.dispatch('changeInput')
+  var dispatcher = d3.dispatch('changeInput')
   dispatcher.on('changeInput', function(year){
       // read input values,
       var inputs = [
