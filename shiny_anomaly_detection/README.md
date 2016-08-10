@@ -7,6 +7,8 @@ This isn't done yet, but in case my Data Science Working Group, Code for SF, and
 
 ### [Shiny + R DoT Anomaly Detector >>](https://judec.shinyapps.io/shiny_anomaly_detection/)
 
+[![](www/shiny_anomalies-R_jude-calvillo_mock.png)](https://judec.shinyapps.io/shiny_anomaly_detection/)   
+
 ### Latest Update: 8/9/16 
 
 v1.4 - Major update: Anomalies, Summ Stats, Style and more...
