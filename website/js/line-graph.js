@@ -57,7 +57,7 @@ function lineGraph() {
 
       // Update the line.
       var line = g.selectAll('.line').data(data)
-      line.exit().transition().duration(1000).attr('fill', '#fff' ).remove();
+      line.exit().remove();
       line.enter().append("path")
           .attr("class", "line")
       line
