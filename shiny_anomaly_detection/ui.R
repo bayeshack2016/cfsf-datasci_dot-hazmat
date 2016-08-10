@@ -42,7 +42,7 @@ sidebarPanel(
     p("This app helps DoT executives identify which states exhibited monthly hazmat incident totals that
       were -truly- anomalous to their respective norms. Please select your month of concern below."),
     dateInput('selectdate',
-              label = paste('Select Month (for testing, try 07/01/14)'),
+              label = paste('Select Month'),
               value = as.Date(cut(Sys.Date(), "month")) - months(1),
               min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(1), 
               format = paste0("mm/", "01", "/yy"),
