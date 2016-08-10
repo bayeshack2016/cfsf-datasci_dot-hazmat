@@ -13,8 +13,9 @@
 ##   really confusing. Thus, I'll soon be developing a slider solution for month selection.
 ## - Anomolous state-specific and date-range specific timeline plot, with anomalies highlighted, 
 ##   now reactive to user input.
-## - Leaflet map rendering now working, but polygon opacity is still funky; it should only color in the anomolous
-##   states. Working on it.
+## - Leaflet map rendering now working, but filled-in states doesn't exactly match those that were anomalous.
+##   Working on it (just need to match state values between mapStates and results carrier; might need a
+##   lookup table).
 ## - Need to 'interact' with user's Leaflet map selection for specifying state to plot and summarize.
 ## - Using state.abb for testing reactive input to state specific anomaly detection and plotting, BUT
 ##   there seems to be a bug: only some states produce a plot. Hopefully, that's just due to some mismatch
@@ -28,12 +29,18 @@ library(shiny)
 library(AnomalyDetection)
 library(lubridate)
 library(dplyr)
+library(maps)
 
 ## Get the data (loading it later for faster initial load)
 dat <- read.csv("data/hazmat_year_month.csv")
 
 ## Factorize state
 dat$State <- as.factor(dat$State)
+
+# Currently, in order to make this all work, we have to filter out those territories not in the
+# states_lookup dataset. We'll map everything out later (between dat, mapState$States, and state abbreviations)
+# ! Wait. This doesn't really work, either. Ok, coming soon!
+# dat <- dat[dat$State %in% state.abb,]
 
 ## Get months and convert to Posix.
 dat$Year.Month = paste(dat$Year.Month,'01',sep='-')
@@ -48,6 +55,34 @@ res_df <- data.frame(timestamp = as.POSIXlt(character()), anoms = integer(), sta
 ## So as not to corrupt local testing
 res_df2 <- data.frame()
 
+## States lookup table (to deal w/maps subsetting issue)
+states_lookup <- data.frame()
+states_lookup[1:50,] <- NA
+states_lookup$State <- state.name
+states_lookup$State.Abb <- state.abb
+
+## Load the map polygons and reformat names a bit (for cross ref)
+mapStates <- map("state", fill = TRUE, plot = FALSE)
+mapStates$names <- sub(":main","", mapStates$names)
+
+# ## Pre-popped data frame, in line w/maps' "states" name ordering and proper shading in Leaflet
+# anom_map_states <- data.frame(State = character(), State.Abb = character(), Incidents = integer(),
+#                               Median = integer(), Low = integer(), High = integer())
+# anom_map_states[1:50,] <- NA
+# anom_map_states$State <- state.name
+# anom_map_states$State.Abb <- state.abb
+# anom_map_states$Incidents <- 0
+
+## Pre-popped data frame, in line w/maps' "states" name ordering and proper shading in Leaflet
+anom_map_states <- data.frame(State = character(), State.Abb = character(), Incidents = integer(),
+                              Median = integer(), Low = integer(), High = integer())
+anom_map_states[1:length(mapStates$names),] <- NA
+anom_map_states$State <- mapStates$names
+anom_map_states$State.Abb <- as.character(anom_map_states$State.Abb)
+anom_map_states[anom_map_states$State %in% tolower(states_lookup$State), "State.Abb"] <- states_lookup[tolower(states_lookup$State) %in% 
+                                                                                                           mapStates$names, "State.Abb"]
+anom_map_states$Incidents <- 0
+
 ## To load up anomaly plots
 res_plots <- list()
 
@@ -56,9 +91,12 @@ shinyServer(
     function(input, output){
         
         ## Load maps library (splitting library load to load page elements faster)
-        ## and load U.S. state map.
-        library(maps)
-        mapStates <- map("state", fill = TRUE, plot = FALSE)
+        ## and load U.S. state maps.
+        # library(maps)
+        ## Subset mapStates to only those states we need
+        # mapStates <- subset(mapStates, region %in% tolower(anom_map_states$State))
+        
+        # mapStates <- mapStates[mapStates$names %in% tolower(state.name),]
         
         ## React to the selected date/month by subsetting to chosen month - 5 years before, then running
         ## anomaly detection and filtering to this month. 
@@ -108,8 +146,19 @@ shinyServer(
         output$anonSTATES <- renderTable({the_anoms()}, include.rownames=FALSE)
         
         ## Show map
-        output$theMAP <- renderLeaflet({leaflet(data = mapStates) %>% addTiles() %>%
-                addPolygons(fillColor = "#cc0000", fillOpacity = the_anoms()$Incidents * .01, stroke = FALSE)})
+        output$theMAP <- renderLeaflet({
+            
+            ## Replace zeroed out states dataframe w/anomalous states' values where states match
+            anom_map_states[anom_map_states$State.Abb %in% the_anoms()$State, -1] <- the_anoms()
+            
+            
+#             ##!! Left to do Order anom map states DF to match mapStates' states order
+#             anom_map_states <- anom_map_states[order()]
+            
+            leaflet(data = mapStates) %>% addTiles() %>%
+            addPolygons(fillColor = "#cc0000", fillOpacity = anom_map_states$Incidents * .01, stroke = FALSE)
+            
+            })
         
         # Render timeline + anomalies plot for selected month
         output$plotANOM <- renderPlot({anom_plot()}, height = 280)
