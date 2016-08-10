@@ -1,20 +1,19 @@
 ## Shiny + R Anomaly App for the U.S. Dept. of Transportation
 ## By Jude Calvillo (Data Science Working Group @ Code for San Francisco)
 ##
-## Status: August 9, 2016:
+## Status: August 10, 2016:
 ## ---------------------
-## v1.4 - Anomolous state detection and output done. Leaflet and news context remains.
+## v1.5 - Leaflet/map plotting issues fixed. Just need to add map interactivity now (and news!)
 ##
 ## - UI's tableOutput now reactive and includes summary stats.
 ## - I'd like to now include a news feed in the area formerly dedicated to summary stats, one that shows 
 ##   hazmat-related news stories from the anomolous states for the selected month. :)
 ## - Applied a bootstrap theme to pretty things up a bit, BUT it's hurt the readability of the date input.
 ## - Apparently, there's no such thing as a purely by "month" date input widget, which makes date selection 
-##   really confusing. Thus, I'll soon be developing a slider solution for month selection.
+##   a little confusing. For now, any date selected gets converted to the first of that month.
 ## - Anomolous state-specific and date-range specific timeline plot, with anomalies highlighted, 
 ##   now reactive to user input.
-## - Leaflet map rendering now working, but polygon opacity is still funky; it should only color in the anomolous
-##   states. Working on it.
+## - Leaflet map rendering and anomalous state filling now working properly (yay!).
 ## - Need to 'interact' with user's Leaflet map selection for specifying state to plot and summarize.
 ## - Using state.abb for testing reactive input to state specific anomaly detection and plotting, BUT
 ##   there seems to be a bug: only some states produce a plot. Hopefully, that's just due to some mismatch

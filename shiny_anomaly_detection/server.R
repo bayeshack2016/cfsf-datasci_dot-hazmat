@@ -1,21 +1,19 @@
 ## Shiny + R Anomaly App for the U.S. Dept. of Transportation
 ## By Jude Calvillo (Data Science Working Group @ Code for San Francisco)
 ##
-## Status: August 9, 2016:
+## Status: August 10, 2016:
 ## ---------------------
-## v1.4 - Anomolous state detection and output done. Leaflet and news context remains.
+## v1.5 - Leaflet/map plotting issues fixed. Just need to add map interactivity now (and news!)
 ##
 ## - UI's tableOutput now reactive and includes summary stats.
 ## - I'd like to now include a news feed in the area formerly dedicated to summary stats, one that shows 
 ##   hazmat-related news stories from the anomolous states for the selected month. :)
 ## - Applied a bootstrap theme to pretty things up a bit, BUT it's hurt the readability of the date input.
 ## - Apparently, there's no such thing as a purely by "month" date input widget, which makes date selection 
-##   really confusing. Thus, I'll soon be developing a slider solution for month selection.
+##   a little confusing. For now, any date selected gets converted to the first of that month.
 ## - Anomolous state-specific and date-range specific timeline plot, with anomalies highlighted, 
 ##   now reactive to user input.
-## - Leaflet map rendering now working, but filled-in states doesn't exactly match those that were anomalous.
-##   Working on it (just need to match state values between mapStates and results carrier; might need a
-##   lookup table).
+## - Leaflet map rendering and anomalous state filling now working properly (yay!).
 ## - Need to 'interact' with user's Leaflet map selection for specifying state to plot and summarize.
 ## - Using state.abb for testing reactive input to state specific anomaly detection and plotting, BUT
 ##   there seems to be a bug: only some states produce a plot. Hopefully, that's just due to some mismatch
@@ -90,21 +88,18 @@ res_plots <- list()
 shinyServer(
     function(input, output){
         
-        ## Load maps library (splitting library load to load page elements faster)
-        ## and load U.S. state maps.
-        # library(maps)
-        ## Subset mapStates to only those states we need
-        # mapStates <- subset(mapStates, region %in% tolower(anom_map_states$State))
-        
-        # mapStates <- mapStates[mapStates$names %in% tolower(state.name),]
-        
         ## React to the selected date/month by subsetting to chosen month - 5 years before, then running
         ## anomaly detection and filtering to this month. 
         the_anoms <- reactive({
             
+            ## To format any date selected to the first of that month
+            ## (for proper ref w/dataset) - Temp solution, until I can create a sort of 'month picker' for Shiny
+            the_first <- input$selectdate
+            day(the_first) <- 1
+            
             ## Have to create 5 years back date as character because base won't take in
-            yrs_back_5 <- as.Date(input$selectdate) - years(5)
-            dat2 <- dat[(dat$Year.Month >= as.character(yrs_back_5)) & (dat$Year.Month <= as.character(input$selectdate)),]
+            yrs_back_5 <- as.Date(the_first) - years(5)
+            dat2 <- dat[(dat$Year.Month >= as.character(yrs_back_5)) & (dat$Year.Month <= as.character(the_first)),]
             
             ## Run each state's data through anomaly detection
             for(i in 1:length(levels(dat2$State))){
@@ -118,7 +113,7 @@ shinyServer(
             res_df2 <- res_df
             
             ## Filter to selected month's states.
-            res_df2 <- res_df2[res_df2$timestamp %in% as.character(input$selectdate), c("State", "Incidents")]
+            res_df2 <- res_df2[res_df2$timestamp %in% as.character(the_first), c("State", "Incidents")]
             if(nrow(res_df2) > 0){
                 sum_stats <- summarise(group_by(dat2[dat2$State %in% res_df2$State,], State), Median = median(Report.Number), 
                                        Low = min(Report.Number), High = max(Report.Number))
@@ -132,14 +127,20 @@ shinyServer(
         ## Extract plot, from stored plots, that's reactive to map/state selection
         anom_plot <- reactive({
             
+            ## To format any date selected to the first of that month
+            ## (for proper ref w/dataset) - Temp solution, until I can create a sort of 'month picker' for Shiny
+            the_first <- input$selectdate
+            day(the_first) <- 1
+            
             ## Have to create 5 years back date as character because base won't take in
-            yrs_back_5 <- as.Date(input$selectdate) - years(5)
-            dat2 <- dat[(dat$Year.Month >= as.character(yrs_back_5)) & (dat$Year.Month <= as.character(input$selectdate)),]
+            yrs_back_5 <- as.Date(the_first) - years(5)
+            dat2 <- dat[(dat$Year.Month >= as.character(yrs_back_5)) & (dat$Year.Month <= as.character(the_first)),]
             
             ## Run selected state's data through anomaly detection, to get plots
             sel_state <- AnomalyDetectionTs(dat2[dat2$State %in% input$selectstate, c("Year.Month","Report.Number")], max_anoms=0.05,
-                                          direction='pos', plot=T)
+                                            direction='pos', plot=T)
             print(sel_state$plot)
+            
         })
 
         ## Show anomolous states (preview / proof of concept)
