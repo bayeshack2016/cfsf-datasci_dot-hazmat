@@ -1,4 +1,4 @@
-// TODO: eliminate 2016 from historic data
+// TODO: add readout for state total incidents next to h3
   var DATAFILE = 'data/randdata.csv' // input data file
 
 // TODO: multiply max by 1.5 or so to allow room to grow
@@ -23,7 +23,6 @@
     // })
 
   }
-
 
   // figure out the current year and set a keystring accordingly
   var currentYear = new Date().getFullYear() +1
@@ -379,6 +378,7 @@
 
     line.yaccessor('number_of_hazardous_incidents')
     line.xaccessor('year')
+    stateincidents.values.forEach(function(el){ el.number_of_hazardous_incidents = +el.number_of_hazardous_incidents})
     lineChart.datum(stateincidents.values).call(line)
     // console.log(data)
 
