@@ -28,7 +28,7 @@ function lineGraph() {
 
   function chart(selection) {
     selection.each(function(data) {
-      /* data is expected to be an array of objects like: {x:num, y:num, id:str} where id is optional */
+      /* data is expected to be an array of objects like: {xaccessor:num, yaccessor:num, id:str} where id is optional */
 
       // Update the x-scale.
       x   .domain( d3.extent(data, function(d) { return d[xaccessor]; }) )
@@ -57,6 +57,7 @@ function lineGraph() {
 
       // Update the line.
       var line = g.selectAll('.line').data(data)
+      line.exit().transition().duration(1000).attr('fill', '#fff' ).remove();
       line.enter().append("path")
           .attr("class", "line")
       line
