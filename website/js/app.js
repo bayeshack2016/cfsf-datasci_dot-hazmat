@@ -1,20 +1,24 @@
-// TODO: add readout for state total incidents next to h3
-
   var DATAFILE = 'data/randdata.csv' // input data file
 
-  var FACTORS = [ {name:"Producing Acres", min:"0", max:"6035593", start:"0", step:2000},
-                  {name:"Number of Producable Wells", min:"0", max:"47100", start:"0", step:1000},
-                  {name:"Number of Producible Completions", min:"0", max:"53746", start:"0", step:1000},
-                  {name:"Mining/Logging Employees", min:"0", max:"410611", start:"0", step:1000} ]
+  var FACTORS = [ {name:"Producing Acres", min:"0", max:"6035593", start:"0"/*, step:2000*/},
+                  {name:"Number of Producable Wells", min:"0", max:"47100", start:"0"/*, step:1000*/},
+                  {name:"Number of Producible Completions", min:"0", max:"53746", start:"0"/*, step:1000*/},
+                  {name:"Mining/Logging Employees (x1000)", min:"0", max:"410611", start:"0"/*, step:1000*/} ]
   // FACTORS will auto populate the HTML file with the above values
 
   function theMODEL(inputs) {
     // theMODEL takes in inputs, sends it to the model, and returns a new data array
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
 
-    var newValue = Math.round((Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])/100)
+    var coeffs = [
+      -0.0001434256,
+      0.218208344,
+      -0.1488391305,
+      5.3622173277,
+      261.8082131641
+    ]
+    var newValue = Math.round(coeffs[0] * inputs[0] + coeffs[1] * inputs[1] + coeffs[2] * inputs[2] + coeffs[3] * inputs[3] + coeffs[4])
 
-    // TODO: calculate newValue for stateincidents based on slider input
     redrawAfterCall(newValue)
 
     // d3.csv('data/randdata2.csv', function(data){
@@ -111,13 +115,13 @@
   var mapSvg = d3.select("#map-container").append("svg")
       .attr("width", fullWidth)
       .attr("height", fullHeight)
-      .on("click", stopped, true);
+      // .on("click", stopped, true);
 
   mapSvg.append("rect")
       .attr("class", "background")
       .attr("width", fullWidth)
       .attr("height", fullHeight)
-      .on("click", reset);
+      // .on("click", reset);
 
   var mg = mapSvg.append("g");
 
@@ -321,7 +325,6 @@
         +d3.select("#inputf3").node().value,
         +d3.select("#inputf4").node().value
       ]
-
       theMODEL(inputs)
   })
 
@@ -369,14 +372,17 @@
       return +el.id === id
     })
 
-    var VARIABLES = [ {name:"num_producing_acres", start: data.num_producing_acres},
-                      {name:"num_of_producible_wells", start: data.num_of_producible_wells},
-                      {name:"num_of_producible_completions", start: data.num_of_producible_completions},
-                      {name:"employees_mining_loging", start: data.employees_mining_loging} ]
+    var VARIABLES = [ {name:"num_producing_acres", min:"0", max:data.num_producing_acres*2, start: data.num_producing_acres},
+                      {name:"num_of_producible_wells", min:"0", max:data.num_of_producible_wells*2, start: data.num_of_producible_wells},
+                      {name:"num_of_producible_completions", min:"0", max:data.num_of_producible_completions*2, start: data.num_of_producible_completions},
+                      {name:"employees_mining_loging_1000", min:"0", max:data.employees_mining_loging_1000*2, start: data.employees_mining_loging_1000} ]
 
     VARIABLES.forEach(function(el,i){
       var num = Math.round(el.start).toLocaleString()
-      document.getElementById('inputf'+(i+1)).value = num
+      var slider = document.getElementById('inputf'+(i+1))
+      slider.value = num
+      slider.min = el.min
+      slider.max = el.max
       document.getElementById('outputf'+(i+1)).innerHTML = num
     })
     stateincidents = incidentsByState.find(function(el){return el.key === fipsToState(id, true)})
@@ -426,7 +432,7 @@
 
   function firstLoad(csvData){
     var dict = {
-      employees_mining_loging:'f1',
+      employees_mining_loging_1000:'f1',
       num_of_producible_wells:'f2',
       num_of_producible_completions:'f3',
       num_producing_acres:'f4'
