@@ -3,24 +3,22 @@ by [Jude Calvillo](http://linkd.in/vVlpXA)
 [Data Science Working Group](http://datascience.codeforsanfrancisco.org)  
 [Code for San Francisco](http://www.codeforsanfrancisco.org)  
 
-This isn't done yet, but in case my Data Science Working Group, Code for SF, and/or Bayes Hack friends would ocassionally like to see my progress, go here:  
+The following application is meant to help DoT execs identify those states that exhibited an anomolous number of hazmat incidents, after accounting for incident seasonality and trend, for their selected month. Thereafter, these execs can click one of these anomolous months (via the embedded map) to get more context in the form of a time-series of incidents for that state (anomolous months highlighted), as well as hazmat-related news from that state and selected month.  
 
-### [Shiny + R DoT Anomaly Detector >>](https://judec.shinyapps.io/shiny_anomaly_detection/)
+### [DoT Hazmat Incident Anomaly Detector (Shiny + R + Leaflet) >>](https://judec.shinyapps.io/shiny_anomaly_detection/)
 
 [![](www/shiny_anomalies-R_jude-calvillo_mock.png)](https://judec.shinyapps.io/shiny_anomaly_detection/)   
 
-### Latest Update: 8/9/16 
+### August 11, 2016:
+v1.6 - Just news feed left. :) Some ideas for the future.
 
-v1.4 - Major update: Anomalies, Summ Stats, Style and more...
+* About 90% done now! Map interactivity complete, thereby updating anomaly plotting and UI.  
+* Just need to integrate a news feed drawn from an API query (e.g. "hazmat incident/accident" + selected state + selected month). [FAROO seems great for this >>](http://www.faroo.com/hp/api/api.html)  
+* For the future: Since Shiny doesn't offer a month picker widget, if we want to make the month selection quicker and easier to understand, we'll have to use straight HTML/javascript. [This jQuery UI seems perfect for the job >>](https://kidsysco.github.io/jquery-ui-month-picker/)
+    - For my own notes: Pay particular attention to the Month Format and Month Parsing options...
+    - https://api.jqueryui.com/datepicker/#utility-formatDate (we want to extract the month in ISO format: $.datepicker.parseDate( "yy-mm-dd", "2007-01-26" );)
 
-* UI's tableOutput now reactive and includes summary stats.
-* I'd like to now include a news feed in the area formerly dedicated to summary stats, one that shows hazmat-related news stories from the anomolous states for the selected month. :)
-* Applied a bootstrap theme to pretty things up a bit, BUT it's hurt the readability of the date input.
-* Apparently, there's no such thing as a purely by "month" date input widget, which makes date selection really confusing. Thus, I'll soon be developing a slider solution for month selection.
-* Anomolous state-specific and date-range specific timeline plot, with anomalies highlighted, now reactive to user input.
-* Leaflet map rendering now working, but polygon opacity is still funky; it should only color in the anomalous states. Working on it.
-* Still need to 'interact' with user's Leaflet map selection for specifying state to plot and summarize.
-* Using basic drop down for testing reactive state-specific timeline plotting until I get leaflet to interact, but there seems to be a bug: only some states produce a plot. Hopefully, that's just due to some mismatch between the drop down's state.abb values and the State values in dat/dat2 (main data frames).
+* Also for the future: Some U.S. territories, like Puerto Rico, are in the DoT's hazmat incident report records, but, of course, they're not within the contiguous United States. If Dan @ DoT confirms that they'd also like to see anomolous territories in this app, we'll need a different polygons dataset (i.e. not "state" from 'maps' library).  
 
 #### SEO tags, because, well, why not? :)
 
