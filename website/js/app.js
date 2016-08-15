@@ -1,22 +1,25 @@
-// TODO: add readout for state total incidents next to h3
   var DATAFILE = 'data/randdata.csv' // input data file
 
-// TODO: multiply max by 1.5 or so to allow room to grow
-  var FACTORS = [ {name:"Producing Acres", min:"0", max:"4023729", start:"44,000", step:2000},
-                  {name:"Number of Producable Wells", min:"0", max:"31400", start:"12,000", step:1000},
-                  {name:"Number of Producible Completions", min:"0", max:"35831", start:"12,000", step:1000},
-                  {name:"Mining/Logging Employees", min:"0", max:"273741", start:"12,000", step:1000} ]
+  var FACTORS = [ {name:"Producing Acres", min:"0", max:"6035593", start:"0"/*, step:2000*/},
+                  {name:"Number of Producable Wells", min:"0", max:"47100", start:"0"/*, step:1000*/},
+                  {name:"Number of Producible Completions", min:"0", max:"53746", start:"0"/*, step:1000*/},
+                  {name:"Mining/Logging Employees (x1000)", min:"0", max:"410611", start:"0"/*, step:1000*/} ]
   // FACTORS will auto populate the HTML file with the above values
 
   function theMODEL(inputs) {
     // theMODEL takes in inputs, sends it to the model, and returns a new data array
     // inputs is an array of integers scraped from the sliders: [ f1, f2, f3, f4 ]
 
-    allData.forEach(function(state){
-      state[year] = Math.round((Math.random() * inputs[0] + Math.random() * inputs[1] + Math.random() * inputs[2] + Math.random() * inputs[3])/100)
-    })
+    var coeffs = [
+      -0.0001434256,
+      0.218208344,
+      -0.1488391305,
+      5.3622173277,
+      261.8082131641
+    ]
+    var newValue = Math.round(coeffs[0] * inputs[0] + coeffs[1] * inputs[1] + coeffs[2] * inputs[2] + coeffs[3] * inputs[3] + coeffs[4])
 
-    redrawAfterCall(allData)
+    redrawAfterCall(newValue)
 
     // d3.csv('data/randdata2.csv', function(data){
     //   redrawAfterCall(data)
@@ -25,19 +28,19 @@
   }
 
   // figure out the current year and set a keystring accordingly
-  var currentYear = new Date().getFullYear() +1
-  var year = 'predicted_incidents_' + currentYear
+  var yearOfInterest = new Date().getFullYear()
+  var year = 'predicted_incidents_' + yearOfInterest
 
+  //TODO: set min/max per state
   // populate the sliders on the page from the FACTORS array
   FACTORS.forEach(function(el,i){
-    d3.select('#labelf'+(i+1)).html(el.name)
-    d3.select('#inputf'+(i+1))
-        .attr('min',el.min)
-        .attr('max',el.max)
-        .attr('value',el.start)
-        .attr('step',el.step)
-    d3.select('#outputf'+(i+1))
-        .html(el.start)
+    var slider = document.getElementById('inputf'+(i+1))
+    slider.value = el.start
+    slider.min = el.min
+    slider.max = el.max
+    slider.step = el.step
+    document.getElementById('outputf'+(i+1)).innerHTML = el.start
+    document.getElementById('labelf'+(i+1)).innerHTML = el.name
   })
 
   // dictionary for looking up {state: 'property to color by'}
@@ -47,7 +50,8 @@
       incidentsByYear,
       fipsData,
       totalIncidents,
-      incidentsByState
+      incidentsByState,
+      stateincidents
 
   // get the fips dictionary used for the topojson map
   d3.json('data/statefips.json', function(data){
@@ -66,7 +70,7 @@
     follow: function(element, caption, options) {
       element.on('mousemove', null);
       element.on('mousemove', function() {
-        let position = d3.mouse(document.body);
+        var position = d3.mouse(document.body);
         d3.select('#tooltip')
           .style('top', ( position[1] - 8 ) + "px")
           .style('left', ( position[0] + 16 ) + "px");
@@ -111,13 +115,13 @@
   var mapSvg = d3.select("#map-container").append("svg")
       .attr("width", fullWidth)
       .attr("height", fullHeight)
-      .on("click", stopped, true);
+      // .on("click", stopped, true);
 
   mapSvg.append("rect")
       .attr("class", "background")
       .attr("width", fullWidth)
       .attr("height", fullHeight)
-      .on("click", reset);
+      // .on("click", reset);
 
   var mg = mapSvg.append("g");
 
@@ -180,7 +184,7 @@
 
     setColorKey(allData, year)
     totalIncidents = calculateTotalIncidents(allData, year)
-    d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + currentYear + ':')
+    d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + yearOfInterest + ':')
     d3.select('#total-incidents').html(totalIncidents.toLocaleString())
 
     // draw map
@@ -248,7 +252,7 @@
         .on("mouseout", tt.hide )
 
     // draw lineGraph
-    incidentsByYear.push({key: currentYear, values: totalIncidents})
+    incidentsByYear.push({key: yearOfInterest, values: totalIncidents})
     incidentsByYear.forEach(function(el){ el.values = +el.values})
     lineChart.datum(incidentsByYear).call(line)
   };
@@ -312,7 +316,7 @@
   })
 
   /* dispatcher events */
-  let dispatcher = d3.dispatch('changeInput')
+  var dispatcher = d3.dispatch('changeInput')
   dispatcher.on('changeInput', function(year){
       // read input values,
       var inputs = [
@@ -321,14 +325,13 @@
         +d3.select("#inputf3").node().value,
         +d3.select("#inputf4").node().value
       ]
-
       theMODEL(inputs)
   })
 
-  function redrawAfterCall(data){
-    allData = data
+  function redrawAfterCall(newValue){
+    // allData = data
     // totalIncidents = calculateTotalIncidents(allData, year)
-    // d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + currentYear + ':')
+    // d3.select('#total-incidents-label').html('Nationwide Predicted Incidents for ' + yearOfInterest + ':')
     // d3.select('#total-incidents').html(totalIncidents.toLocaleString())
     // y.domain([0, d3.max(allData, function(d) { return +d[year]; })]);
     // d3.select('.y.axis').transition().call(yAxis)
@@ -348,40 +351,49 @@
     //     .attr("y", function(d) { return y(d[year]); })
     //     .attr("height", function(d) { return barHeight - y(d[year]); })
 
-    // var index = incidentsByYear.findIndex(function(el){
-    //   return el.key === currentYear
-    // })
-    // debugger
-    // incidentsByYear[index].values = totalIncidents
-    //
-    // lineChart.datum(incidentsByYear).call(line)
+    d3.select('#state-incidents-label').html('Predicted Incidents for ' + yearOfInterest + ':')
+    d3.select('#state-incidents').html(newValue.toLocaleString())
+
+    var index = stateincidents.values.findIndex(function(el){
+      //find the value to adjust
+      return +el.year === yearOfInterest
+    })
+    //adjust the value
+    stateincidents.values[index].number_of_hazardous_incidents = newValue
+    //redraw the line
+    lineChart.datum(stateincidents.values).call(line)
   }
 
   function setStateActive (id) {
     d3.select('#lower-context').html(fipsToState(id))
+    d3.select('#state-incidents-label').html('Incidents for ' + yearOfInterest + ':')
 
     var data = allData.find(function(el) {
       return +el.id === id
     })
 
-    var VARIABLES = [ {name:"num_producing_acres", start: data.num_producing_acres},
-                      {name:"num_of_producible_wells", start: data.num_of_producible_wells},
-                      {name:"num_of_producible_completions", start: data.num_of_producible_completions},
-                      {name:"employees_mining_loging", start: data.employees_mining_loging} ]
+    var VARIABLES = [ {name:"num_producing_acres", min:"0", max:data.num_producing_acres*2, start: data.num_producing_acres},
+                      {name:"num_of_producible_wells", min:"0", max:data.num_of_producible_wells*2, start: data.num_of_producible_wells},
+                      {name:"num_of_producible_completions", min:"0", max:data.num_of_producible_completions*2, start: data.num_of_producible_completions},
+                      {name:"employees_mining_loging_1000", min:"0", max:data.employees_mining_loging_1000*2, start: data.employees_mining_loging_1000} ]
 
     VARIABLES.forEach(function(el,i){
       var num = Math.round(el.start).toLocaleString()
-      document.getElementById('inputf'+(i+1)).value = num
+      var slider = document.getElementById('inputf'+(i+1))
+      slider.value = num
+      slider.min = el.min
+      slider.max = el.max
       document.getElementById('outputf'+(i+1)).innerHTML = num
     })
-    var stateincidents = incidentsByState.find(function(el){return el.key === fipsToState(id, true)})
+    stateincidents = incidentsByState.find(function(el){return el.key === fipsToState(id, true)})
 
     line.yaccessor('number_of_hazardous_incidents')
     line.xaccessor('year')
     stateincidents.values.forEach(function(el){ el.number_of_hazardous_incidents = +el.number_of_hazardous_incidents})
     lineChart.datum(stateincidents.values).call(line)
-    // console.log(data)
 
+    var newValue = stateincidents.values.find(function(el){return +el.year === yearOfInterest}).number_of_hazardous_incidents
+    d3.select('#state-incidents').html(newValue.toLocaleString())
   }
 
   function setStateCallout (id) {
@@ -420,7 +432,7 @@
 
   function firstLoad(csvData){
     var dict = {
-      employees_mining_loging:'f1',
+      employees_mining_loging_1000:'f1',
       num_of_producible_wells:'f2',
       num_of_producible_completions:'f3',
       num_producing_acres:'f4'
