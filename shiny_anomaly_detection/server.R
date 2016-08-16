@@ -27,7 +27,7 @@
 ## ----------------------------------
 ##
 
-## Load necessary libraries and datasets.
+## Load necessary libraries.
 library(shiny)
 library(AnomalyDetection)
 library(lubridate)
@@ -36,6 +36,13 @@ library(ggplot2)
 library(jsonlite)
 library(httr)
 # library(maps) # Loading states map as object, instead, to save a little load time)
+
+## Load R objects for API key (MS Cognitive Services) and map polygons.
+## Reformatting names of map polygons for easier reference/matching.
+load(file = "data/api_key.rda")
+load(file = "data/mapStates.rda")
+mapStates$names <- sub(":main","", mapStates$names)
+# mapStates <- map("state", fill = TRUE, plot = FALSE) #if loading from library
 
 ## Get the state-by-state incident data
 dat <- read.csv("data/hazmat_year_month.csv")
@@ -66,11 +73,6 @@ res_df <- data.frame(timestamp = as.POSIXlt(character()), anoms = integer(), sta
 ## So as not to corrupt local testing
 res_df2 <- data.frame()
 
-## Load the map polygons and reformat names a bit (for cross ref)
-load(file = "data/mapStates.rda")
-# mapStates <- map("state", fill = TRUE, plot = FALSE)
-mapStates$names <- sub(":main","", mapStates$names)
-
 ## Pre-popped data frame, in line w/maps' "states" name ordering and proper shading in Leaflet
 anom_map_states <- data.frame(State = character(), State.Abb = character(), Incidents = integer(),
                               Median = integer(), Low = integer(), High = integer())
@@ -81,9 +83,6 @@ anom_map_states[anom_map_states$State %in% tolower(states_lookup$State), "State.
                                                                                                            mapStates$names, "State.Abb"]
 anom_map_states$Incidents <- 0
 
-## News API: Grab creds and create request URL for News Search API (MS Cognitive Science)
-## Need to better filter this via advanced operators
-api_key <- "db8c9b11eca148c1b0363fedbfb19072"
 
 ## Initiate Shiny Server instance.
 shinyServer(
@@ -175,13 +174,9 @@ shinyServer(
                 state_name <- gsub(" ", "+", state_name)
                 
                 ## Test request URL
-                req_url <- paste0("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=",state_name,"&","(hazardous+materials|hazmat)+(spill|accident|incident)",
-                                    "&count=100&offset=0&mkt=en-us&safeSearch=Moderate&category=Health")
-                
-                # ## Set up request URl
-                # req_url <- paste0("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=(intitle:hazardous+material+near:3+accident|hazardous+material+near:3+incident+|+hazardous+material+near:3+spill)&",
-                #                     "(keywords:",state_name,")&count=100&offset=0&mkt=en-us&safeSearch=Moderate&category=Health")
-                
+                req_url <- paste0("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=", "hazardous+materials+accident|incident+", state_name, "+", year(input$selectdate),
+                                    "&count=100&offset=0&mkt=en-us&safeSearch=Moderate")
+                                  #&category=Health")
                 
                 ## API REQUEST for hazmat news @ state + month
                 req_content <- GET(url = req_url, add_headers("Ocp-Apim-Subscription-Key" = api_key, type = "basic"))
@@ -194,11 +189,14 @@ shinyServer(
                 news_df$datePublished <- as.Date(news_df$datePublished)
                 
                 ## ! Still need to filter results down to user's selected month and year !
-                ## (both in the API request and in the results subsetting)
+                ## (both in the results subsetting and the API request, if possible)
                 
                 ## Temp results
                 news_df$datePublished <- as.character(news_df$datePublished) # Because render table auto-converts dates to numeric
-                news_df[1:5,c("name","datePublished")]
+                news_df <- news_df[floor_date(as.Date(news_df$datePublished), unit = "month") 
+                                   %in% floor_date(as.Date(input$selectdate), unit = "month"),]
+                news_df[,c("name","datePublished")]
+                
             }
         })
         
@@ -218,22 +216,22 @@ shinyServer(
             
             })
         
-        # Render timeline + anomalies plot for selected month
-        output$plotANOM <- renderPlot({anom_plot()}, height = 280)
-        
         # Render reactive anomaly plot heading UI
         output$plotHEAD <- renderUI({
             
-                if(is.null(input$theMAP_shape_click$id)){
-                    print(h4(style="color:#000000;", icon("clock-o", lib="font-awesome"), "Incident Timeline for State (Month - 5yrs)"))
-                             
-                } else {
-                    print(h4(style="color:#000000;", icon("clock-o", lib="font-awesome"), 
-                             paste("Incident Timeline for", states_lookup$State[tolower(states_lookup$State) %in% input$theMAP_shape_click$id],
-                                   "(Month - 5yrs)")))
-                }
+            if(is.null(input$theMAP_shape_click$id)){
+                print(h4(style="color:#000000;", icon("clock-o", lib="font-awesome"), "Incident Timeline for State (Month - 5yrs)"))
+                
+            } else {
+                print(h4(style="color:#000000;", icon("clock-o", lib="font-awesome"), 
+                         paste("Incident Timeline for", states_lookup$State[tolower(states_lookup$State) %in% input$theMAP_shape_click$id],
+                               "(Month - 5yrs)")))
+            }
             
-            })
+        })
+        
+        # Render timeline + anomalies plot for selected month
+        output$plotANOM <- renderPlot({anom_plot()}, height = 280)
         
         # Render reactive news heading UI
         output$newsHEAD <- renderUI({

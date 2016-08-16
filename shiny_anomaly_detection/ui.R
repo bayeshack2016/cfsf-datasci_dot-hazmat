@@ -64,7 +64,7 @@ sidebarPanel(
     tableOutput("anonSTATES"),
     h2(" "),
     h2(" "),
-    p("Step 2: Select State for Context"),
+    p(style="font-weight:bold;","Step 2: Select State for Context >"),
     h2(" ")
     ),
 mainPanel(
