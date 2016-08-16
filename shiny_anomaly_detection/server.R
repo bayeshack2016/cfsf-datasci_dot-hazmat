@@ -27,7 +27,7 @@
 ## ----------------------------------
 ##
 
-## Load necessary libraries and datasets.
+## Load necessary libraries.
 library(shiny)
 library(AnomalyDetection)
 library(lubridate)
@@ -36,6 +36,13 @@ library(ggplot2)
 library(jsonlite)
 library(httr)
 # library(maps) # Loading states map as object, instead, to save a little load time)
+
+## Load R objects for API key (MS Cognitive Services) and map polygons.
+## Reformatting names of map polygons for easier reference/matching.
+load(file = "data/api_key.rda")
+load(file = "data/mapStates.rda")
+mapStates$names <- sub(":main","", mapStates$names)
+# mapStates <- map("state", fill = TRUE, plot = FALSE) #if loading from library
 
 ## Get the state-by-state incident data
 dat <- read.csv("data/hazmat_year_month.csv")
@@ -66,11 +73,6 @@ res_df <- data.frame(timestamp = as.POSIXlt(character()), anoms = integer(), sta
 ## So as not to corrupt local testing
 res_df2 <- data.frame()
 
-## Load the map polygons and reformat names a bit (for cross ref)
-load(file = "data/mapStates.rda")
-# mapStates <- map("state", fill = TRUE, plot = FALSE)
-mapStates$names <- sub(":main","", mapStates$names)
-
 ## Pre-popped data frame, in line w/maps' "states" name ordering and proper shading in Leaflet
 anom_map_states <- data.frame(State = character(), State.Abb = character(), Incidents = integer(),
                               Median = integer(), Low = integer(), High = integer())
@@ -81,9 +83,6 @@ anom_map_states[anom_map_states$State %in% tolower(states_lookup$State), "State.
                                                                                                            mapStates$names, "State.Abb"]
 anom_map_states$Incidents <- 0
 
-## News API: Grab creds and create request URL for News Search API (MS Cognitive Science)
-## Need to better filter this via advanced operators
-api_key <- "db8c9b11eca148c1b0363fedbfb19072"
 
 ## Initiate Shiny Server instance.
 shinyServer(
