@@ -1,28 +1,20 @@
 ## Hazmat Incident Anomaly Detection App (R + Shiny + Leaflet) for the U.S. Dept. of Transportation
 ## By Jude Calvillo (Data Science Working Group @ Code for San Francisco)
 ##
-## Status: August 14, 2016:
+## Status: Oct. 22, 2016
 ## ---------------------
-## v1.7 - News feed API incorporated. News search query and formatting refinements remain.
+## v2.0 - Complete / Beta
 ## 
-## - About 95% done now! 
-## - Map interactivity complete and per-state anomaly plotting complete.
-## - News feed API (Microsoft Cognitive Services) now incorporated. 
-## - Have to refine my use of advanced operators in news feed request URL.
-## - Have to refine formatting of news results for UI (MS's API offers HTML formatting). 
-## - I should probably embed the news into a scrolling widget.
-## 
-## - For the future: Since Shiny doesn't offer a month picker widget, if we want to make the month selection
-##   quicker and easier to understand, we'll have to use straight HTML/javascript. This jQuery UI seems
-##   perfect for the job: https://kidsysco.github.io/jquery-ui-month-picker/
-##       - For my own notes: Pay particular attention to the Month Format and Month Parsing options...
-##              - https://api.jqueryui.com/datepicker/##utility-formatDate (we want to extract the month
-##                in ISO format: $.datepicker.parseDate( "yy-mm-dd", "2007-01-26" );)
-## 
-## - Also for the future: Some U.S. territories, like Puerto Rico, are in the DoT's hazmat incident report
-##   records, but, of course, they're not within the contiguous United States. If Dan @ DoT confirms that
-##   they'd also like to see anomolous territories in this app, we'll need a different polygons dataset
-##   (i.e. not "state" from 'maps' library).
+## - ALL DONE. :) - Hazmat-related news results integrated as HTML + javascript and map interactivity
+##   now bug-free.
+## - Next steps: 
+##     > Update dataset and work with Dan @ DoT to get some kind of live/daily data feed. 
+##     > Try to refine MS Cognitive Services API call for consistently more relevant news search results.
+##     > Try to create and employ a custom 'month picker' Shiny input object, as Shiny Apps does not offer 
+##        a month picker widget or useful dateInput option. Some useful links...
+##          >> jQuery Month Picker: http://jsfiddle.net/kidsysco/JeZap/
+##          >> How to Build Custom Shiny Input Objects: http://shiny.rstudio.com/articles/building-inputs.html
+##     > Attempt to generalize this for MANY temporal-spatial civic anomaly detection purposes!!
 ## 
 ## ----------------------------------
 ##
@@ -42,7 +34,7 @@ library(httr)
 load(file = "data/api_key.rda")
 load(file = "data/mapStates.rda")
 mapStates$names <- sub(":main","", mapStates$names)
-# mapStates <- map("state", fill = TRUE, plot = FALSE) #if loading from library
+# mapStates <- map("state", fill = TRUE, plot = FALSE) # Used only if loading from library
 
 ## Get the state-by-state incident data
 dat <- read.csv("data/hazmat_year_month.csv")
@@ -58,7 +50,8 @@ states_lookup$State.Abb <- state.abb
 dat$State <- as.factor(dat$State)
 
 # Currently, in order to make this all work, we have to filter out those territories not in the
-# states_lookup dataset. We'll fully map everything out later (between dat, mapState$States, and state abbreviations)]
+# states_lookup dataset (e.g. filtering out Puerto Rico). We can work out a solution for getting those 
+# later, if necessary.
 
 ## Get months and convert to Posix.
 dat$Year.Month = paste(dat$Year.Month,'01',sep='-')
@@ -175,8 +168,8 @@ shinyServer(
                 
                 ## Test request URL
                 req_url <- paste0("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=", "hazardous+materials+accident|incident+", state_name, "+", year(input$selectdate),
-                                    "&count=100&offset=0&mkt=en-us&safeSearch=Moderate")
-                                  #&category=Health")
+                                  "&count=100&offset=0&mkt=en-us&safeSearch=Moderate")
+                #&category=Health")
                 
                 ## API REQUEST for hazmat news @ state + month
                 req_content <- GET(url = req_url, add_headers("Ocp-Apim-Subscription-Key" = api_key, type = "basic"))
@@ -188,19 +181,25 @@ shinyServer(
                 news_df <- news_df[,c("name","description","url","datePublished","provider")]
                 news_df$datePublished <- as.Date(news_df$datePublished)
                 
-                ## ! Still need to filter results down to user's selected month and year !
-                ## (both in the results subsetting and the API request, if possible)
-                
-                ## Temp results
+                ## Filter down to news of user-selected month
                 news_df$datePublished <- as.character(news_df$datePublished) # Because render table auto-converts dates to numeric
                 news_df <- news_df[floor_date(as.Date(news_df$datePublished), unit = "month") 
                                    %in% floor_date(as.Date(input$selectdate), unit = "month"),]
-                news_df[,c("name","datePublished")]
-                
+
+                ## Create HTML links (for later use) by applying paste0 across a few columns
+                news_df <- news_df[, c("name","datePublished","url")]
+                names(news_df)[2] <- "Date"
+                news_df <- cbind(news_df, "<a href='")
+                news_df <- cbind(news_df, "' target='_blank' style='color:#108aa0;font-weight:bold'>")
+                news_df <- cbind(news_df, "</a>")
+                news_df <- news_df[, c(4,3,5,1,6,2)]
+                news_df$Article <- apply(news_df[,-6], 1, paste0, collapse = "")
+                news_df[, c("Article","Date")]
+
             }
         })
         
-        ## Show anomolous states (preview / proof of concept)
+        ## Show anomolous states
         output$anonSTATES <- renderTable({the_anoms()}, include.rownames=FALSE)
         
         ## Show map
@@ -216,7 +215,7 @@ shinyServer(
             
             })
         
-        # Render reactive anomaly plot heading UI
+        ## Render reactive anomaly plot heading UI
         output$plotHEAD <- renderUI({
             
             if(is.null(input$theMAP_shape_click$id)){
@@ -230,10 +229,10 @@ shinyServer(
             
         })
         
-        # Render timeline + anomalies plot for selected month
+        ## Render timeline + anomalies plot for selected month
         output$plotANOM <- renderPlot({anom_plot()}, height = 280)
         
-        # Render reactive news heading UI
+        ## Render reactive news heading UI (reacts to selected state name)
         output$newsHEAD <- renderUI({
             
             if(is.null(input$theMAP_shape_click$id)){
@@ -248,19 +247,23 @@ shinyServer(
             
         })
         
-        # Render reactive news content
-        output$newsCONTENT <- renderTable({
+        ## Render reactive news content in HTML-enabled table
+        output$newsCONTENT <- renderDataTable({
 
             if(is.null(input$theMAP_shape_click$id)){
-
-                print(as.data.frame("Awaiting state selection"))
+                
+                news_temp <- as.data.frame("Awaiting state selection")
+                names(news_temp) <- "Article"
+                print(news_temp)
 
             } else {
 
                 the_news()
+                
             }
 
-        })
+        }, escape = F, options = list(paging = F, searching = F)) # disabled search/filtering and pagination, for now
+        
   
         }
     )
