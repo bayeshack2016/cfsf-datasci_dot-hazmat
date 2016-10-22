@@ -1,28 +1,20 @@
 ## Hazmat Incident Anomaly Detection App (R + Shiny + Leaflet) for the U.S. Dept. of Transportation
 ## By Jude Calvillo (Data Science Working Group @ Code for San Francisco)
 ##
-## Status: August 14, 2016:
+## Status: Oct. 22, 2016
 ## ---------------------
-## v1.7 - News feed API incorporated. News search query and formatting refinements remain.
+## v2.0 - Complete / Beta
 ## 
-## - About 95% done now! 
-## - Map interactivity complete and per-state anomaly plotting complete.
-## - News feed API (Microsoft Cognitive Services) now incorporated. 
-## - Have to refine my use of advanced operators in news feed request URL.
-## - Have to refine formatting of news results for UI (MS's API offers HTML formatting). 
-## - I should probably embed the news into a scrolling widget.
-## 
-## - For the future: Since Shiny doesn't offer a month picker widget, if we want to make the month selection
-##   quicker and easier to understand, we'll have to use straight HTML/javascript. This jQuery UI seems
-##   perfect for the job: https://kidsysco.github.io/jquery-ui-month-picker/
-##       - For my own notes: Pay particular attention to the Month Format and Month Parsing options...
-##              - https://api.jqueryui.com/datepicker/##utility-formatDate (we want to extract the month
-##                in ISO format: $.datepicker.parseDate( "yy-mm-dd", "2007-01-26" );)
-## 
-## - Also for the future: Some U.S. territories, like Puerto Rico, are in the DoT's hazmat incident report
-##   records, but, of course, they're not within the contiguous United States. If Dan @ DoT confirms that
-##   they'd also like to see anomolous territories in this app, we'll need a different polygons dataset
-##   (i.e. not "state" from 'maps' library).
+## - ALL DONE. :) - Hazmat-related news results integrated as HTML + javascript and map interactivity
+##   now bug-free.
+## - Next steps: 
+##     > Update dataset and work with Dan @ DoT to get some kind of live/daily data feed. 
+##     > Try to refine MS Cognitive Services API call for consistently more relevant news search results.
+##     > Try to create and employ a custom 'month picker' Shiny input object, as Shiny Apps does not offer 
+##        a month picker widget or useful dateInput option. Some useful links...
+##          >> jQuery Month Picker: http://jsfiddle.net/kidsysco/JeZap/
+##          >> How to Build Custom Shiny Input Objects: http://shiny.rstudio.com/articles/building-inputs.html
+##     > Attempt to generalize this for MANY temporal-spatial civic anomaly detection purposes!!
 ## 
 ## ----------------------------------
 ##
@@ -30,6 +22,7 @@
 library(shiny)
 library(leaflet)
 library(lubridate)
+includeScript("www/MonthPicker.js")
 
 shinyUI(fluidPage(theme = "style2.css",
                   # Customizing background.
@@ -45,26 +38,36 @@ fluidRow(
 sidebarPanel(
     style = "background:transparent;border-color:#ffffff;box-shadow: 10px 10px 10px #cccccc;",
     p("This app helps DoT executives identify which states exhibited monthly hazmat incident totals that
-      were -truly- anomalous to their respective norms. Please select your month of concern below."),
+      were -truly- anomalous to their respective norms, after accounting for seasonality and trend. Please 
+      follow the two steps below to get started."),
+    h2(style="color:#108aa0;font-weight:bold;", "Step 1: Select Month of Concern"),
+    
+    ## Date selection: Shiny Apps widget approach, for now (sub-optimal; have to select a specific date).
+    ## Will someday attempt to create a custom month picker Shiny input object (see notes above).
     dateInput('selectdate',
-              label = paste('Step 1: Select Month'),
+              label = "",
+              # label = paste('Step 1: Select Month'),
               
-              # # temp default val and date range (because our data pull only goes up to April, 2016, ...for now)
-              # value = as.Date(cut(Sys.Date(), "month")) - months(6),
-              # min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(6), 
+              # temp default val and date range (because our data pull only goes up to April, 2016, ...for now)
+              value = as.Date(cut(Sys.Date(), "month")) - months(6),
+              min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(6),
               
-              # the REAL val and date range (once we have the data)
-              value = as.Date(cut(Sys.Date(), "month")) - months(1),
-              min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(1),
+              # # the REAL val and date range (once we have the data)
+              # value = as.Date(cut(Sys.Date(), "month")) - months(1),
+              # min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(1),
               
               format = paste0("mm/", "01", "/yy"),
               startview = 'year'),
+    
     h2(" "),
     h4(icon("truck", lib="font-awesome"),"Anomalous States"),
     tableOutput("anonSTATES"),
-    h2(" "),
-    h2(" "),
-    p(style="font-weight:bold;","Step 2: Select State for Context >"),
+    p(" "),
+    p(" "),
+    p(" "),
+    h2(style="color:#108aa0;font-weight:bold;", "Step 2: Select Anomolous State >>"),
+    p("Select from the red-colored states to display some news and historical incident count context for that state."),
+    # p(style="font-weight:bold;","Step 2: Select State for Context >"),
     h2(" ")
     ),
 mainPanel(
@@ -76,9 +79,9 @@ mainPanel(
     column(6, uiOutput("newsHEAD"),
            h2(" "),
            h2(" "),
-           tableOutput("newsCONTENT")
-            # includeHTML("www/rss-feed_sample.html")
+           dataTableOutput("newsCONTENT")
            ),
+    column(12, h2(" ")),
     column(12, "Developed by", a("Jude Calvillo", href="http://linkd.in/vVlpXA"), "-", a("Data Science Working Group @ Code for San Francisco", 
                                                                                          href="http://datascience.codeforsanfrancisco.org"),
             h2(" "),
