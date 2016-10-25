@@ -16,7 +16,7 @@ v2.0 - Complete / Beta
 
 * ALL DONE. :) - Hazmat-related news results integrated as HTML + javascript and map interactivity now bug-free.
 * Next steps: 
-    - Update dataset (current data only goes up to March, 2016) and work with Dan @ DoT to get some kind of live/daily data feed. 
+    - Work with Dan @ DoT to get some kind of live/daily data feed (currently, dataset goes up to month of Sept, 2016). 
     - Try to refine MS Cognitive Services API call for consistently more relevant news search results.
     - Try to create and employ a custom 'month picker' Shiny input object, as Shiny Apps does not offer a month picker widget or useful dateInput option. Some useful links...
         - jQuery Month Picker: http://jsfiddle.net/kidsysco/JeZap/
