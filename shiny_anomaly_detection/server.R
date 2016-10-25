@@ -54,7 +54,6 @@ dat$State <- as.factor(dat$State)
 # later, if necessary.
 
 ## Get months and convert to Posix.
-dat$Year.Month = paste(dat$Year.Month,'01',sep='-')
 dat$Year.Month = as.POSIXct(strptime(dat$Year.Month, "%Y-%m-%d"))
 
 ## For later
@@ -84,6 +83,8 @@ shinyServer(
         ## React to the selected date/month by subsetting to chosen month - 5 years before, then running
         ## anomaly detection and filtering to this month. 
         the_anoms <- reactive({
+            
+            # par(mar=c(1,1,1,1))
             
             ## To format any date selected to the first of that month
             ## (for proper ref w/dataset) - Temp solution, until I can create a sort of 'month picker' for Shiny
@@ -190,7 +191,7 @@ shinyServer(
                 news_df <- news_df[, c("name","datePublished","url")]
                 names(news_df)[2] <- "Date"
                 news_df <- cbind(news_df, "<a href='")
-                news_df <- cbind(news_df, "' target='_blank' style='color:#108aa0;font-weight:bold'>")
+                news_df <- cbind(news_df, "' style='color:#108aa0;font-weight:bold'>")
                 news_df <- cbind(news_df, "</a>")
                 news_df <- news_df[, c(4,3,5,1,6,2)]
                 news_df$Article <- apply(news_df[,-6], 1, paste0, collapse = "")

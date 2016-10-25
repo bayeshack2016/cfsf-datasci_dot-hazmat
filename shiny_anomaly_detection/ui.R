@@ -46,15 +46,10 @@ sidebarPanel(
     ## Will someday attempt to create a custom month picker Shiny input object (see notes above).
     dateInput('selectdate',
               label = "",
-              # label = paste('Step 1: Select Month'),
               
-              # temp default val and date range (because our data pull only goes up to April, 2016, ...for now)
-              value = as.Date(cut(Sys.Date(), "month")) - months(6),
-              min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(6),
-              
-              # # the REAL val and date range (once we have the data)
-              # value = as.Date(cut(Sys.Date(), "month")) - months(1),
-              # min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(1),
+              ## Default val and date range = Current month - 1 month
+              value = as.Date(cut(Sys.Date(), "month")),
+              min = Sys.Date() - 1825, max = as.Date(cut(Sys.Date(), "month")) - months(1),
               
               format = paste0("mm/", "01", "/yy"),
               startview = 'year'),
@@ -84,6 +79,7 @@ mainPanel(
     column(12, h2(" ")),
     column(12, "Developed by", a("Jude Calvillo", href="http://linkd.in/vVlpXA"), "-", a("Data Science Working Group @ Code for San Francisco", 
                                                                                          href="http://datascience.codeforsanfrancisco.org"),
+            p("For code and dev details, visit ", a("Github Repo @ Bayes Hack 2016", href="https://git.io/vPrtb")),
             h2(" "),
             h2(" "))
     )
